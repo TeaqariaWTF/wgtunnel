@@ -226,22 +226,20 @@ class TunnelBackend(
                 .collect { state ->
                     val dns = state.underlyingDnsInfo
 
+                    Timber.d(
+                        "PrivateDNS mode=%s hostname=%s servers=%s",
+                        dns.privateDnsMode,
+                        dns.privateDnsHostname,
+                        dns.servers,
+                    )
+
                     val config =
                         when (dns.privateDnsMode) {
-                            PrivateDnsMode.OFF -> {
+                            PrivateDnsMode.OFF,
+                            PrivateDnsMode.AUTOMATIC -> {
                                 DnsBoostrapConfig.Plain(
                                     dns.servers.firstOrNull() ?: DnsBoostrapConfig.DEFAULT_UPSTREAM
                                 )
-                            }
-
-                            PrivateDnsMode.AUTOMATIC -> {
-                                dns.privateDnsHostname
-                                    ?.takeIf { it.isNotBlank() }
-                                    ?.let { DnsBoostrapConfig.DoT(it) }
-                                    ?: DnsBoostrapConfig.Plain(
-                                        dns.servers.firstOrNull()
-                                            ?: DnsBoostrapConfig.DEFAULT_UPSTREAM
-                                    )
                             }
 
                             PrivateDnsMode.HOSTNAME -> {
