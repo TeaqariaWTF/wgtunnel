@@ -63,8 +63,6 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 
 	name, err := tun.Name()
 
-	shared.LogDebug(tag, "Creating device with domain blocking enabled: %v", conf.Device.DomainBlockingEnabled)
-
 	bind := conn.NewStdNetBind()
 	stdBind, ok := bind.(*conn.StdNetBind)
 	if !ok {
@@ -79,7 +77,7 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 		go C.awgNotifyStatus(C.int32_t(handle), C.int32_t(code))
 	}
 
-	dev := device.NewDevice(tun, stdBind, shared.NewLogger("Tun/"+interfaceName), conf.Device.DomainBlockingEnabled, statusCB)
+	dev := device.NewDevice(tun, stdBind, shared.NewLogger("Tun/"+interfaceName), statusCB)
 
 	dev.DisableSomeRoamingForBrokenMobileSemantics()
 

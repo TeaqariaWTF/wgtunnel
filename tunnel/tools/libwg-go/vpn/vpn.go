@@ -65,7 +65,7 @@ func awgTurnOn(interfaceName string, tunFd int32, settings string, uapiPath stri
 		go C.awgNotifyStatus(C.int32_t(handle), C.int32_t(code))
 	}
 
-	tunDevice := device.NewDevice(tunnel, conn.NewStdNetBind(), shared.NewLogger("Tun/"+interfaceName), conf.Device.DomainBlockingEnabled, statusCB)
+	tunDevice := device.NewDevice(tunnel, conn.NewStdNetBind(), shared.NewLogger("Tun/"+interfaceName), statusCB)
 
 	tunDevice.DisableSomeRoamingForBrokenMobileSemantics()
 
