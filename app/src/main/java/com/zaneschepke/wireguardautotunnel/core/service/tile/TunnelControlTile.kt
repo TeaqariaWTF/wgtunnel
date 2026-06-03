@@ -27,6 +27,8 @@ class TunnelControlTile : TileService() {
     @Volatile private var observing = false
 
     override fun onDestroy() {
+        collectionJob?.cancel()
+        collectionJob = null
         tileScope.cancel()
         super.onDestroy()
     }
@@ -76,6 +78,7 @@ class TunnelControlTile : TileService() {
         observing = false
         collectionJob?.cancel()
         collectionJob = null
+        tileScope.cancel()
     }
 
     override fun onClick() {

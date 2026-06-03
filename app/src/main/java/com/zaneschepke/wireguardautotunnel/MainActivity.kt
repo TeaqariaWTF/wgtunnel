@@ -3,6 +3,7 @@ package com.zaneschepke.wireguardautotunnel
 import ProxySettingsScreen
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
@@ -153,6 +154,8 @@ class MainActivity : AppCompatActivity() {
             window.isNavigationBarContrastEnforced = false
         }
         super.onCreate(savedInstanceState)
+
+        handleIncomingIntent(intent)
 
         roomBackup = RoomBackup(this)
 
@@ -601,5 +604,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .restore()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
+    }
+
+    private fun handleIncomingIntent(intent: Intent?) {
+        intent ?: return
+
+        when (intent.action) {
+            Intent.ACTION_VIEW,
+            Intent.ACTION_EDIT,
+            Intent.ACTION_SEND -> {
+                val uri: Uri? = intent.data
+                uri?.let { viewModel.importFromUri(it) }
+            }
+        }
     }
 }

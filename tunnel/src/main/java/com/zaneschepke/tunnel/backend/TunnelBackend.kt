@@ -5,6 +5,7 @@ import com.zaneschepke.networkmonitor.DnsInfo
 import com.zaneschepke.networkmonitor.NetworkMonitor
 import com.zaneschepke.networkmonitor.PrivateDnsMode
 import com.zaneschepke.tunnel.NotificationProvider
+import com.zaneschepke.tunnel.ProxyBackend
 import com.zaneschepke.tunnel.Tunnel
 import com.zaneschepke.tunnel.event.TunnelEvent
 import com.zaneschepke.tunnel.model.BackendMode
@@ -91,6 +92,7 @@ class TunnelBackend(
 
                     if (!shouldKeepVpnServiceAlive(stillHasVpn)) {
                         Timber.d("Stopping VPN service after hooks completed")
+                        ProxyBackend.setSocketProtector(null)
                         serviceHolder.stopVpnService()
                     } else {
                         Timber.d("VPN shutdown aborted — state changed during hook wait")

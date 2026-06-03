@@ -39,7 +39,8 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var hevBridgeJob: Job? = null
-    private var fd: ParcelFileDescriptor? = null
+
+    @Volatile private var fd: ParcelFileDescriptor? = null
 
     val builder: Builder
         get() = Builder()
@@ -65,23 +66,25 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
     override fun onDestroy() {
         Timber.d("VpnService destroyed")
 
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        try {
+            ProxyBackend.setSocketProtector(null)
 
-        ProxyBackend.setSocketProtector(null)
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
-        disableKillSwitch()
-        hevBridgeJob?.cancel()
+            disableKillSwitch()
+            hevBridgeJob?.cancel()
 
-        serviceScope.cancel()
+            serviceScope.cancel()
 
-        backend.emergencyStopAllOfTypeSync(BackendMode.Vpn::class)
-        backend.emergencyStopAllOfTypeSync(BackendMode.Proxy.KillSwitchPrimary::class)
+            backend.emergencyStopAllOfTypeSync(BackendMode.Vpn::class)
+            backend.emergencyStopAllOfTypeSync(BackendMode.Proxy.KillSwitchPrimary::class)
 
-        stopHevSocks5Bridge()
+            stopHevSocks5Bridge()
 
-        serviceHolder.clear(this)
-
-        super.onDestroy()
+            serviceHolder.clear(this)
+        } finally {
+            super.onDestroy()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -126,7 +129,7 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                                 password = pass,
                             )
                         val hevConfigFile =
-                            TProxyService.createHevTunnelConfig(config, this@VpnService)
+                            TProxyService.createHevTunnelConfig(config, this@VpnService.cacheDir)
                         TProxyService.TProxyStartService(hevConfigFile.absolutePath, vpnFd.fd)
 
                         Timber.d("HEV bridge started successfully - coroutine can now exit")

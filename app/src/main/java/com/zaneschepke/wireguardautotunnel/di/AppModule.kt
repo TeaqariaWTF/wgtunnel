@@ -2,8 +2,10 @@ package com.zaneschepke.wireguardautotunnel.di
 
 import android.content.Context
 import android.os.PowerManager
+import android.os.StrictMode
 import com.zaneschepke.logcatter.LogReader
 import com.zaneschepke.logcatter.LogcatReader
+import com.zaneschepke.wireguardautotunnel.BuildConfig
 import com.zaneschepke.wireguardautotunnel.core.notification.AndroidNotificationService
 import com.zaneschepke.wireguardautotunnel.core.notification.NotificationService
 import com.zaneschepke.wireguardautotunnel.core.service.ServiceManager
@@ -44,7 +46,22 @@ val appModule = module {
     single<CoroutineScope>(named(Scope.APPLICATION)) {
         CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
-    single<LogReader> { LogcatReader.init(storageDir = androidContext().filesDir.absolutePath) }
+    single<LogReader> {
+        if (BuildConfig.DEBUG) {
+            val readPolicy = StrictMode.allowThreadDiskReads()
+            val writePolicy = StrictMode.allowThreadDiskWrites()
+            try {
+                val storageDir = androidContext().filesDir.absolutePath
+                LogcatReader.init(storageDir = storageDir)
+            } finally {
+                StrictMode.setThreadPolicy(readPolicy)
+                StrictMode.setThreadPolicy(writePolicy)
+            }
+        } else {
+            val storageDir = androidContext().filesDir.absolutePath
+            LogcatReader.init(storageDir = storageDir)
+        }
+    }
 
     single<PowerManager> {
         androidContext().getSystemService(Context.POWER_SERVICE) as PowerManager

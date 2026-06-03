@@ -1,6 +1,5 @@
 package com.zaneschepke.hevtunnel
 
-import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -20,8 +19,8 @@ object TProxyService {
     @JvmStatic external fun TProxyGetStats(): LongArray?
 
     @Throws(IOException::class)
-    fun createHevTunnelConfig(config: HevTunnelConfig, context: Context): File {
-        val tproxyFile = File(context.cacheDir, HEV_CONFIG_FILE_NAME)
+    fun createHevTunnelConfig(config: HevTunnelConfig, cacheDirPath: File): File {
+        val tproxyFile = File(cacheDirPath, HEV_CONFIG_FILE_NAME)
 
         val hevConf =
             """

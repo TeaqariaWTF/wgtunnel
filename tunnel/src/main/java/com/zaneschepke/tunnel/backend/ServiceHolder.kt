@@ -2,6 +2,7 @@ package com.zaneschepke.tunnel.backend
 
 import android.content.Context
 import android.content.Intent
+import com.zaneschepke.tunnel.ProxyBackend
 import com.zaneschepke.tunnel.StatusCallback
 import com.zaneschepke.tunnel.VpnBackend
 import com.zaneschepke.tunnel.service.TunnelService
@@ -98,6 +99,8 @@ internal class ServiceHolder(val context: Context) {
         val service = vpnService.getNow(null) ?: return
 
         Timber.d("Stopping VpnService")
+
+        ProxyBackend.setSocketProtector(null)
 
         service.stopSelf()
     }

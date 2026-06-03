@@ -63,21 +63,19 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 
 	name, err := tun.Name()
 
-	bind := conn.NewStdNetBind()
-	stdBind, ok := bind.(*conn.StdNetBind)
-	if !ok {
-		return -1
-	}
+	var bind conn.Bind
 
 	if bypass == 1 {
-		stdBind.SetControl(protectControlFunc)
+		bind = conn.NewStdNetBindWithControl(protectControlFunc)
+	} else {
+		bind = conn.NewStdNetBind()
 	}
 
 	statusCB := func(code device.StatusCode) {
 		go C.awgNotifyStatus(C.int32_t(handle), C.int32_t(code))
 	}
 
-	dev := device.NewDevice(tun, stdBind, shared.NewLogger("Tun/"+interfaceName), statusCB)
+	dev := device.NewDevice(tun, bind, shared.NewLogger("Tun/"+interfaceName), statusCB)
 
 	dev.DisableSomeRoamingForBrokenMobileSemantics()
 
