@@ -9,6 +9,8 @@ import com.zaneschepke.wireguardautotunnel.core.event.TunnelEventDispatcher
 import com.zaneschepke.wireguardautotunnel.core.notification.NotificationService
 import com.zaneschepke.wireguardautotunnel.core.orchestration.AppBoostrapCoordinator
 import com.zaneschepke.wireguardautotunnel.core.orchestration.TunnelCoordinator
+import com.zaneschepke.wireguardautotunnel.core.service.tile.AutoTunnelTileRefresher
+import com.zaneschepke.wireguardautotunnel.core.service.tile.TunnelTileRefresher
 import com.zaneschepke.wireguardautotunnel.core.tunnel.TunnelProvider
 import com.zaneschepke.wireguardautotunnel.di.Dispatcher
 import com.zaneschepke.wireguardautotunnel.di.Scope
@@ -70,6 +72,11 @@ class WireGuardAutoTunnel : Application(), KoinComponent {
         }
         instance = this
         notificationService.createAllChannels()
+
+        // Sync tiles
+        AutoTunnelTileRefresher.refresh(this)
+        TunnelTileRefresher.refresh(this)
+
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
             StrictMode.setThreadPolicy(

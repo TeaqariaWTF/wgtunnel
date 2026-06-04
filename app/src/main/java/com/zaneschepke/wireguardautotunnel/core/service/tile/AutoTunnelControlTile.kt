@@ -45,7 +45,12 @@ class AutoTunnelControlTile : TileService() {
     }
 
     override fun onClick() {
-        unlockAndRun { tileScope.launch { autoTunnelCoordinator.toggle() } }
+        unlockAndRun {
+            tileScope.launch {
+                autoTunnelCoordinator.toggle()
+                updateTileState()
+            }
+        }
     }
 
     private fun updateTileState() {
@@ -54,8 +59,7 @@ class AutoTunnelControlTile : TileService() {
     }
 
     private fun startObserving() {
-        if (observerJob?.isActive == true) return
-
+        observerJob?.cancel()
         observerJob = tileScope.launch {
             autoTunnelStateHolder.active.collect { active ->
                 if (active) setActive() else setInactive()
