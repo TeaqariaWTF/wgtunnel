@@ -98,6 +98,7 @@ class WireGuardAutoTunnel : Application(), KoinComponent {
             provider.events,
             provider.backendStatus,
             coordinator.errors,
+            tunnelCoordinator.tunnelDisplayStates,
         )
 
         applicationScope.launch(ioDispatcher) { boostrapCoordinator.bootstrap() }

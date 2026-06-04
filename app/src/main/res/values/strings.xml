@@ -580,4 +580,5 @@
     <string name="app">App</string>
     <string name="app_channel_description">A channel for general application notifications, like version updates</string>
     <string name="stop_all">Stop all</string>
+    <string name="tunnel_state_establishing_connection">Establishing connection</string>
 </resources>

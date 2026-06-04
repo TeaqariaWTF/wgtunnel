@@ -101,8 +101,6 @@ internal class TunnelActor(
                 try {
                     when (cmd) {
                         is TunnelCommand.Start -> {
-                            val mode = cmd.mode
-
                             val result = engine.start(cmd.tunnel, cmd.mode)
                             apply(TunnelStarted(result, cmd))
 
@@ -306,7 +304,7 @@ internal class TunnelActor(
             updatedRunning.buildResolvedPeers(
                 preferIpv6 = running.currentPreferIpv6 && networkHasIpv6
             )
-
+        send(TunnelCommand.SetBootstrapState(tunnelId, BootstrapState.UpdatingPeers))
         send(TunnelCommand.ApplyResolvedPeers(tunnelId = tunnelId, cache = cache, peers = peers))
         send(TunnelCommand.SetBootstrapState(tunnelId, BootstrapState.Complete))
     }

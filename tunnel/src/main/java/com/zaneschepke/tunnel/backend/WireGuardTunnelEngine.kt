@@ -85,7 +85,7 @@ internal class WireGuardTunnelEngine(
         if (port !in 1..65_535) return false
         return try {
             ServerSocket(port).use { true }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             false
         }
     }

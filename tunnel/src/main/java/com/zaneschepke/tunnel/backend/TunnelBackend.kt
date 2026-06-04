@@ -20,6 +20,7 @@ import com.zaneschepke.tunnel.state.RuntimeDnsConfig
 import com.zaneschepke.tunnel.util.BackendException
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -230,7 +231,7 @@ class TunnelBackend(
 
     private suspend fun emitInitialSystemDnsConfig() {
         val state =
-            withTimeoutOrNull(2_500L) {
+            withTimeoutOrNull(2_500L.milliseconds) {
                 networkMonitor.connectivityStateFlow.first { connectivityState ->
                     val dns = connectivityState.underlyingDnsInfo
                     dns.servers.isNotEmpty() ||

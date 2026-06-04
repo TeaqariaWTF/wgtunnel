@@ -17,14 +17,20 @@ import com.zaneschepke.wireguardautotunnel.domain.repository.GeneralSettingRepos
 import com.zaneschepke.wireguardautotunnel.domain.repository.MonitoringSettingsRepository
 import com.zaneschepke.wireguardautotunnel.domain.repository.ProxySettingsRepository
 import com.zaneschepke.wireguardautotunnel.domain.repository.TunnelRepository
+import com.zaneschepke.wireguardautotunnel.ui.state.DisplayTunnelState
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -40,6 +46,17 @@ class TunnelCoordinator(
     proxyRepository: ProxySettingsRepository,
     scope: CoroutineScope,
 ) {
+
+    @OptIn(FlowPreview::class)
+    val tunnelDisplayStates: StateFlow<Map<Int, DisplayTunnelState>> =
+        tunnelProvider.backendStatus
+            .map { status ->
+                status.activeTunnels.mapValues { (_, activeTunnel) ->
+                    DisplayTunnelState.from(activeTunnel)
+                }
+            }
+            .debounce(400L.milliseconds)
+            .stateIn(scope = scope, started = SharingStarted.Eagerly, initialValue = emptyMap())
 
     data class RuntimeSettingsSnapshot(
         val general: GeneralSettings,

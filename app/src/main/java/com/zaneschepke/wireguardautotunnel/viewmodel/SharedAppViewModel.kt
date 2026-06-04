@@ -71,10 +71,12 @@ class SharedAppViewModel(
                 tunnelRepository.userTunnelsFlow,
                 tunnelCoordinator.backendStatus,
                 selectedTunnelsRepository.flow,
-            ) { tunnels, backendStatus, selectedTuns ->
+                tunnelCoordinator.tunnelDisplayStates,
+            ) { tunnels, backendStatus, selectedTuns, displayStates ->
                 TunnelsUiState(
                     tunnels = tunnels,
                     backendStatus = backendStatus,
+                    displayStates = displayStates,
                     selectedTunnels = selectedTuns,
                     isLoading = false,
                 )

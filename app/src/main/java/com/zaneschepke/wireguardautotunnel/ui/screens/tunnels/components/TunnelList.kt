@@ -87,14 +87,15 @@ fun TunnelList(
                     uiState.backendStatus.activeTunnels[tunnel.id] ?: ActiveTunnel()
                 }
 
-            val displayState = remember(activeTunnel) { DisplayTunnelState.from(activeTunnel) }
+            val displayState =
+                uiState.displayStates[tunnel.id] ?: DisplayTunnelState.from(activeTunnel)
+
+            val isRunning = uiState.backendStatus.activeTunnels.containsKey(tunnel.id)
 
             val selected =
                 remember(uiState.selectedTunnels) {
                     uiState.selectedTunnels.any { it.id == tunnel.id }
                 }
-
-            val isRunning = displayState != DisplayTunnelState.Disconnected
 
             SurfaceRow(
                 modifier =

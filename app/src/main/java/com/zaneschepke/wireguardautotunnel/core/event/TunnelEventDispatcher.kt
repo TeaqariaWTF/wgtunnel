@@ -29,6 +29,7 @@ class TunnelEventDispatcher(
         providerEvents: Flow<TunnelEvent>,
         providerStatus: StateFlow<BackendStatus>,
         coordinatorErrors: Flow<TunnelErrorEvent>,
+        tunnelDisplayStates: StateFlow<Map<Int, DisplayTunnelState>>,
     ) {
 
         // informational events
@@ -85,22 +86,23 @@ class TunnelEventDispatcher(
             .launchIn(scope)
 
         // vpn
-        combine(providerStatus.map { it.activeTunnels }, tunnelRepository.userTunnelsFlow) {
-                activeTunnels,
-                allTunnels ->
+        combine(
+                providerStatus.map { it.activeTunnels },
+                tunnelRepository.userTunnelsFlow,
+                tunnelDisplayStates,
+            ) { activeTunnels, allTunnels, displayStates ->
                 activeTunnels
                     .mapNotNull { (id, activeTunnel) ->
                         val mode = activeTunnel.mode ?: return@mapNotNull null
-
-                        // Only include VPN / KillSwitchPrimary modes
                         if (
                             mode !is BackendMode.Vpn && mode !is BackendMode.Proxy.KillSwitchPrimary
                         ) {
                             return@mapNotNull null
                         }
-
                         val tunnel = allTunnels.find { it.id == id } ?: return@mapNotNull null
-                        val displayState = DisplayTunnelState.from(activeTunnel)
+
+                        val displayState =
+                            displayStates[id] ?: DisplayTunnelState.from(activeTunnel)
 
                         TunnelNotificationLine(
                             id = id,
@@ -115,20 +117,19 @@ class TunnelEventDispatcher(
             .launchIn(scope)
 
         // proxy
-        combine(providerStatus.map { it.activeTunnels }, tunnelRepository.userTunnelsFlow) {
-                activeTunnels,
-                allTunnels ->
+        combine(
+                providerStatus.map { it.activeTunnels },
+                tunnelRepository.userTunnelsFlow,
+                tunnelDisplayStates,
+            ) { activeTunnels, allTunnels, displayStates ->
                 activeTunnels
                     .mapNotNull { (id, activeTunnel) ->
                         val mode = activeTunnel.mode ?: return@mapNotNull null
-
-                        // Only include Standard Proxy mode
-                        if (mode !is BackendMode.Proxy.Standard) {
-                            return@mapNotNull null
-                        }
+                        if (mode !is BackendMode.Proxy.Standard) return@mapNotNull null
 
                         val tunnel = allTunnels.find { it.id == id } ?: return@mapNotNull null
-                        val displayState = DisplayTunnelState.from(activeTunnel)
+                        val displayState =
+                            displayStates[id] ?: DisplayTunnelState.from(activeTunnel)
 
                         TunnelNotificationLine(
                             id = id,
