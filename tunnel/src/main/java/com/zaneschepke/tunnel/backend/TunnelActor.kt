@@ -63,6 +63,7 @@ internal class TunnelActor(
 ) {
 
     private val inbox = Channel<TunnelCommand>(Channel.UNLIMITED)
+    private val stopping = mutableSetOf<Int>()
 
     // track running hooks to prevent service shutdown until post down hooks complete
     private val _runningPostDownHooks = MutableStateFlow(0)
@@ -101,27 +102,45 @@ internal class TunnelActor(
                 try {
                     when (cmd) {
                         is TunnelCommand.Start -> {
-                            val result = engine.start(cmd.tunnel, cmd.mode)
-                            apply(TunnelStarted(result, cmd))
-
-                            val runtime = _state.value.byTunnelId[result.tunnelId] ?: continue
-
-                            val job =
-                                startTunnelJobs(
-                                    tunnelId = result.tunnelId,
-                                    runtime = runtime,
-                                    removedPeerEndpoint = result.removedPeerEndpoint,
+                            if (stopping.contains(cmd.tunnel.id)) {
+                                Timber.d(
+                                    "Tunnel ${cmd.tunnel.id} is still stopping, ignoring rapid start"
                                 )
+                                continue
+                            }
 
-                            tunnelJobs[result.tunnelId] = job
+                            try {
+                                val result = engine.start(cmd.tunnel, cmd.mode)
+                                stopping -= cmd.tunnel.id
+                                apply(TunnelStarted(result, cmd))
 
-                            job.invokeOnCompletion { tunnelJobs.remove(result.tunnelId, job) }
+                                val runtime = _state.value.byTunnelId[result.tunnelId] ?: continue
+
+                                val job =
+                                    startTunnelJobs(
+                                        tunnelId = result.tunnelId,
+                                        runtime = runtime,
+                                        removedPeerEndpoint = result.removedPeerEndpoint,
+                                    )
+
+                                tunnelJobs[result.tunnelId] = job
+
+                                job.invokeOnCompletion { tunnelJobs.remove(result.tunnelId, job) }
+                            } finally {
+                                stopping -= cmd.tunnel.id
+                            }
                         }
 
                         is TunnelCommand.Stop -> {
                             val runtime = _state.value.byTunnelId[cmd.tunnelId] ?: continue
-
+                            stopping += cmd.tunnelId
                             engine.stop(runtime.running.handle, runtime.running.mode)
+
+                            // Extra safety delay for static listen ports to allow OS time to
+                            // release port
+                            if (runtime.running.mode.config.`interface`.listenPort != null) {
+                                delay(250.milliseconds)
+                            }
                         }
 
                         is TunnelCommand.SetBootstrapConfig -> {
@@ -282,6 +301,7 @@ internal class TunnelActor(
     }
 
     private fun stopTunnel(tunnelId: Int, handle: Int) {
+        stopping -= tunnelId
         tunnelJobs.remove(tunnelId)?.cancel()
         apply(TunnelStopped(tunnelId, handle))
     }
@@ -689,6 +709,7 @@ internal class TunnelActor(
     }
 
     fun emergencyStop(tunnelId: Int) {
+        stopping -= tunnelId
         val runtime = _state.value.byTunnelId[tunnelId] ?: return
         val handle = runtime.running.handle
         val mode = runtime.running.mode

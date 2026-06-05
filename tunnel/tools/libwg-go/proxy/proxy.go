@@ -35,7 +35,6 @@ func init() {
 
 //export awgStartProxy
 func awgStartProxy(interfaceName string, config string, uapiPath string, bypass int32) int32 {
-
 	conf, err := wireproxyawg.ParseConfigString(config)
 	if err != nil {
 		shared.LogError(tag, "Invalid config file", err)
@@ -49,22 +48,29 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 	}
 
 	setting, err := wireproxyawg.CreateIPCRequest(conf.Device, false)
-
 	if err != nil {
 		shared.LogError(tag, "Create IPC request failed", err)
+		shared.ReleaseHandle(handle)
 		return -1
 	}
 
 	tun, tnet, err := netstack.CreateNetTUN(setting.DeviceAddr, setting.DNS, setting.MTU)
 	if err != nil {
 		shared.LogError(tag, "Create TUN failed", err)
+		shared.ReleaseHandle(handle)
 		return -1
 	}
 
 	name, err := tun.Name()
+	if err != nil {
+		shared.LogError(tag, "Failed to get TUN name: %v", err)
+		shared.ReleaseHandle(handle)
+		tun.Close()
+		return -1
+	}
 
+	// Lockdown modes needs our socket protection
 	var bind conn.Bind
-
 	if bypass == 1 {
 		bind = conn.NewStdNetBindWithControl(protectControlFunc)
 	} else {
@@ -76,27 +82,28 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 	}
 
 	dev := device.NewDevice(tun, bind, shared.NewLogger("Tun/"+interfaceName), statusCB)
-
 	dev.DisableSomeRoamingForBrokenMobileSemantics()
 
 	err = dev.IpcSet(setting.IpcRequest)
-
 	if err != nil {
 		shared.LogError(tag, "Ipc setting failed", err)
+		shared.ReleaseHandle(handle)
+		dev.Close()
 		return -1
 	}
 
-	uapiFile, err := ipc.UAPIOpen(uapiPath, name)
-
 	var uapi net.Listener
-
-	if err != nil {
-		shared.LogError(tag, "UAPIOpen: %v", err)
+	uapiFile, uapiErr := ipc.UAPIOpen(uapiPath, name)
+	if uapiErr != nil {
+		shared.LogError(tag, "UAPIOpen: %v", uapiErr)
+		uapiFile = nil
 	} else {
 		uapi, err = ipc.UAPIListen(uapiPath, name, uapiFile)
 		if err != nil {
-			uapiFile.Close()
 			shared.LogError(tag, "UAPIListen: %v", err)
+			uapiFile.Close()
+			uapiFile = nil
+			uapi = nil
 		} else {
 			go func() {
 				for {
@@ -113,7 +120,13 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 	err = dev.Up()
 	if err != nil {
 		shared.LogError(tag, "Failed to bring up device", err)
-		uapiFile.Close()
+		if uapiFile != nil {
+			uapiFile.Close()
+		}
+		if uapi != nil {
+			uapi.Close()
+		}
+		shared.ReleaseHandle(handle)
 		dev.Close()
 		return -1
 	}
@@ -127,16 +140,12 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 		PingRecord:     make(map[string]uint64),
 		PingRecordLock: new(sync.Mutex),
 	}
-
 	virtualTunnelHandles[handle] = virtualTun
 
-	// Create cancellable context
 	tunnelCtx, tunnelCancel := context.WithCancel(context.Background())
 	cancelFuncs[handle] = tunnelCancel
 
-	// Spawn all routines with context
 	for _, spawner := range conf.Routines {
-		shared.LogDebug(tag, "Spawning routine..")
 		go func(s wireproxyawg.RoutineSpawner) {
 			if err := s.SpawnRoutine(tunnelCtx, virtualTun); err != nil {
 				shared.LogError(tag, "Routine failed: %v", err)
@@ -144,7 +153,7 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 		}(spawner)
 	}
 
-	shared.LogDebug(tag, "Done starting proxy and tunnel")
+	shared.LogDebug(tag, "Done starting proxy and tunnel for handle %d", handle)
 	return handle
 }
 
@@ -219,27 +228,29 @@ func awgTurnProxyTunnelOff(virtualTunnelHandle int32) {
 	}
 	shared.LogDebug(tag, "Tearing down tunnel %d", virtualTunnelHandle)
 
+	delete(virtualTunnelHandles, virtualTunnelHandle)
+
 	if cancel, exists := cancelFuncs[virtualTunnelHandle]; exists {
 		cancel()
 		delete(cancelFuncs, virtualTunnelHandle)
-		time.Sleep(50 * time.Millisecond)
 	}
 
-	// Close UAPI listener and underlying file
 	if virtualTun.Uapi != nil {
 		virtualTun.Uapi.Close()
 	}
-
 	if virtualTun.Dev != nil {
 		virtualTun.Dev.Close()
 	}
 
-	go C.awgNotifyStatus(
+	C.awgNotifyStatus(
 		C.int32_t(virtualTunnelHandle),
 		C.int32_t(shared.StatusStop),
 	)
 
-	delete(virtualTunnelHandles, virtualTunnelHandle)
+	// Give time for full resource release
+	time.Sleep(150 * time.Millisecond)
+
 	shared.ReleaseHandle(virtualTunnelHandle)
-	shared.LogDebug(tag, "Tunnel %d fully closed (UAPI/Dev/Bind purged)", virtualTunnelHandle)
+
+	shared.LogDebug(tag, "Tunnel handle %d fully closed", virtualTunnelHandle)
 }
