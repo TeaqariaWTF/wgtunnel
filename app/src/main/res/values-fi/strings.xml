@@ -11,7 +11,6 @@
     <string name="dns_servers">DNS-palvelimet</string>
     <string name="app_name">WG Tunnel</string>
     <string name="delete_tunnel_message">Haluatko varmasti poistaa tämän tunnelin?</string>
-    <string name="no_tunnels">Ei tunneleita määriteltynä!</string>
     <string name="tunnels">Tunnelit</string>
     <string name="privacy_policy">Näytä tietosuojakäytäntö</string>
     <string name="okay">Okei</string>
@@ -53,9 +52,6 @@
     <string name="edit_tunnel">Muokkaa tunnelia</string>
     <string name="settings">Asetukset</string>
     <string name="support">Tuki</string>
-    <string name="unsure_how">jos et tiedä, miten jatkaa</string>
-    <string name="see_the">katso</string>
-    <string name="getting_started_guide">aloitusopas</string>
     <string name="vpn_denied_dialog_title">Ei käyttöoikeutta</string>
     <string name="vpn_settings">VPN järjestelmäasetukset</string>
     <string name="always_on_message">VPN-yhteyden käyttöoikeus on evätty. Tarkista</string>
@@ -186,7 +182,6 @@
     <string name="response_packet_junk_size">Response packet junk size</string>
     <string name="start">Start</string>
     <string name="enable_amnezia_compatibility">Enable Amnezia compatibility</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="already_donated">Already donated</string>
     <string name="kofi">Ko-fi</string>

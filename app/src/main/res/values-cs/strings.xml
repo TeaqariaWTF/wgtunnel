@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="no_tunnels">Žádné tunely ještě nebyly přidány!</string>
     <string name="tunnel_mobile_data">Tunelovat na mobilních datech</string>
     <string name="privacy_policy">Zásady soukromí</string>
     <string name="okay">OK</string>
@@ -41,9 +40,6 @@
     <string name="junk_packet_maximum_size">Junk packet maximální velikost</string>
     <string name="init_packet_junk_size">Init packet junk velikost</string>
     <string name="response_packet_junk_size">Response packet junk velikost</string>
-    <string name="unsure_how">pokud si nejste jisti, jak postupovat</string>
-    <string name="see_the">Podívejte se na</string>
-    <string name="getting_started_guide">začátečnickou příručku</string>
     <string name="error_file_extension">Soubor není ve formátu .conf nebo .zip</string>
     <string name="tunnel_on_ethernet">Tunelovat na ethernetu</string>
     <string name="prominent_background_location_message">Tato funkce vyžaduje oprávnění pro přístup k poloze na pozadí pro zapnutí monitorování Wi-Fi SSID, i když je aplikace zavřená. Pro více detailů, podívejte se prosím na zásady soukromí umístěné v kategorii Podpora.</string>
@@ -149,7 +145,6 @@
     <string name="app_permission_title">Ovládání tunelů a funkcí automatického tunelování</string>
     <string name="app_permission_description">https://hosted.weblate.org/translate/wg-tunnel/strings/en/?checksum=e52d7eb2e28a9a12 Ovládání funkcí tunelu a automatického tunelování.</string>
     <string name="enable_remote_app_control">Povolit vzdálené ovládání aplikace</string>
-    <string name="nothing_here_yet">Zatím zde nic není!</string>
     <string name="export_success">Export byl úspěšně dokončen</string>
     <string name="download">Stáhnout</string>
     <string name="check_for_update">Zkontrolovat aktualizaci</string>

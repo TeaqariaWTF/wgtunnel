@@ -21,7 +21,6 @@
     <string name="addresses">Direcciones</string>
     <string name="public_key">Clave pública</string>
     <string name="error_file_extension">No es un archivo .conf o .zip</string>
-    <string name="no_tunnels">¡Ningún túnel añadido aún!</string>
     <string name="tunnels">Túneles</string>
     <string name="tunnel_mobile_data">Activar túnel en datos móviles</string>
     <string name="privacy_policy">Política de privacidad</string>
@@ -78,14 +77,11 @@
     <string name="show_amnezia_properties">Mostrar propiedades de Amnezia</string>
     <string name="never">Nunca</string>
     <string name="transport_packet_magic_header">Encabezado del paquete de transporte</string>
-    <string name="getting_started_guide">Guía de inicio</string>
     <string name="always_on_message">Se ha denegado el permiso de conexión VPN. Por favor, compruebe el</string>
     <string name="always_on_message2">para asegurarse de que la VPN siempre activa esté desactivada para todas las demás aplicaciones e inténtelo de nuevo</string>
     <string name="response_packet_magic_header">Encabezado del paquete de respuesta</string>
     <string name="junk_packet_maximum_size">Tamaño máximo de paquetes «ruido»</string>
     <string name="init_packet_junk_size">Tamaño de «datos de ruido» añadidos al paquete de inicialización</string>
-    <string name="unsure_how">Si no estás seguro de cómo proceder</string>
-    <string name="see_the">Ver la</string>
     <string name="vpn_denied_dialog_title">Permiso denegado</string>
     <string name="vpn_settings">Configuraciones VPN del sistema</string>
     <string name="response_packet_junk_size">Tamaño de «datos ruido» del paquete de respuesta</string>
@@ -183,7 +179,6 @@
     <string name="amoled">AMOLED</string>
     <string name="show_qr">Mostrar QR</string>
     <string name="done">Hecho</string>
-    <string name="nothing_here_yet">¡No hay nada aquí de momento!</string>
     <string name="current_template">Actual: %1$s</string>
     <string name="root_required_template">%1$s (se necesita root)</string>
     <string name="recommended_template">%1$s (recomendado)</string>

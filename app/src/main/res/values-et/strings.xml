@@ -3,7 +3,6 @@
     <string name="app_name">WG Tunnel</string>
     <string name="error_file_extension">See pole .conf või .zip fail</string>
     <string name="prominent_background_location_message">See funktsionaalsus eeldab, et rakendusel on õigus asukoha ja WiFi SSID taustal tuvastamiseks, seda ka siis, kui rakendus on suletud. Lisateavet leiad Privaatsusreeglite lehelt, leitav Kasutajatoe vaatest.</string>
-    <string name="no_tunnels">Ühtegi tunnelit pole veel lisatud!</string>
     <string name="tunnels">Tunnelid</string>
     <string name="tunnel_mobile_data">Loo tunnel mobiilse andmesidega</string>
     <string name="privacy_policy">Andmekaitsepõhimõtted</string>
@@ -46,7 +45,6 @@
     <string name="permission_required">Õigused on vajalikud</string>
     <string name="install_updated_permission">See rakendus vajab uuenduse paigaldamiseks õigusi.</string>
     <string name="allow">Luba</string>
-    <string name="nothing_here_yet">Siin pole veel midagi!</string>
     <string name="select_all">Vali kõik</string>
     <string name="export_success">Eksportimine õnnestus</string>
     <string name="enable_remote_app_control">Luba rakenduse kaugjuhtimine</string>
@@ -132,9 +130,6 @@
     <string name="config_error">Vigane seadistus</string>
     <string name="auth_error">Pole lubatud</string>
     <string name="service_running_error">Teenus ei tööta</string>
-    <string name="unsure_how">kui ei oska otsustada, mida järgmiseks teha</string>
-    <string name="see_the">Vaata</string>
-    <string name="getting_started_guide">esmaste toimingute juhendit</string>
     <string name="restart_at_boot">Käivita alglaadimisel</string>
     <string name="vpn_denied_dialog_title">Õigusi napib</string>
     <string name="never">Mitte kunagi</string>

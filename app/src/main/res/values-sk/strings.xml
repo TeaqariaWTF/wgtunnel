@@ -3,7 +3,6 @@
     <string name="app_name">Tunel WG</string>
     <string name="app_permission_description">Ovládanie tunelov a funkcie automatického tunela.</string>
     <string name="error_file_extension">Súbor nie je typu .conf ani .zip</string>
-    <string name="no_tunnels">Zatiaľ neboli pridané žiadne tunely!</string>
     <string name="tunnels">Tunely</string>
     <string name="privacy_policy">Zobraziť zásady ochrany osobných údajov</string>
     <string name="okay">Dobre</string>
@@ -161,7 +160,6 @@
     <string name="response_packet_junk_size">Response packet junk size</string>
     <string name="start">Start</string>
     <string name="enable_amnezia_compatibility">Enable Amnezia compatibility</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="support">Podpora</string>
     <string name="already_donated">Already donated</string>
@@ -187,12 +185,10 @@
     <string name="configuration">Configuration</string>
     <string name="drag_handle">Drag Handle</string>
     <string name="global_dns_servers">Global DNS servers</string>
-    <string name="unsure_how">Ak si nieste istý ako pokračovať</string>
     <string name="display_theme">Motív zobrazenia</string>
     <string name="contact">Contact</string>
     <string name="ports_must_differ">Failed. Proxies must have different ports.</string>
     <string name="notifications">Notifikácie</string>
-    <string name="getting_started_guide">getting started guide</string>
     <string name="join_matrix">Join Matrix community</string>
     <string name="backup_and_restore">Backup and restore</string>
     <string name="proxy_settings">Proxy settings</string>
@@ -257,7 +253,6 @@
     <string name="language">Jazyk</string>
     <string name="splt_tunneling">Split tunneling</string>
     <string name="search">Search</string>
-    <string name="see_the">Pozri</string>
     <string name="auth_error">Unauthorized</string>
     <string name="auto">(Auto)</string>
     <string name="add_from_clipboard">Add from clipboard</string>

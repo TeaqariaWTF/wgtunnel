@@ -17,7 +17,6 @@
     <string name="matrix_url" translatable="false">https://matrix.to/#/#wg-tunnel-space:matrix.org</string>
     <string name="telegram_url" translatable="false">https://t.me/wgtunnel</string>
     <string name="error_file_extension">File is not a .conf or .zip</string>
-    <string name="no_tunnels">No tunnels added yet!</string>
     <string name="tunnels">Tunnels</string>
     <string name="tunnel_mobile_data">Tunnel on mobile data</string>
     <string name="privacy_policy">Privacy policy</string>
@@ -98,9 +97,6 @@
     <string name="response_packet_magic_header">Response packet magic header</string>
     <string name="transport_packet_magic_header">Transport packet magic header</string>
     <string name="underload_packet_magic_header">Underload packet magic header</string>
-    <string name="unsure_how">if you are unsure how to proceed</string>
-    <string name="see_the">See the</string>
-    <string name="getting_started_guide">getting started guide</string>
     <string name="restart_at_boot">Start on boot</string>
     <string name="vpn_denied_dialog_title">Permission Denied</string>
     <string name="vpn_settings">VPN system settings</string>
@@ -184,7 +180,6 @@
     <string name="auth_error">Unauthorized</string>
     <string name="service_running_error">Service not running</string>
     <string name="enable_remote_app_control">Enable remote app control</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="select_all">Select all</string>
     <string name="export_success">Export success</string>
     <string name="download">Download</string>
@@ -516,4 +511,7 @@
 
     <string name="restore_ipv6">Restore IPv6</string>
     <string name="restore_ipv6_desc">Switch back to IPv6 when an IPv6 network is detected.</string>
+    <string name="no_tunnels_yet">Nothing here… yet.</string>
+    <string name="getting_started_guidance">Use the + button to import a tunnel, or view the getting started guide.</string>
+    <string name="getting_started_guide_link">view the getting started guide</string>
 </resources>

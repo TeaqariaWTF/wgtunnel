@@ -11,7 +11,6 @@
     <string name="public_key">عوامی کلید</string>
     <string name="app_name">ڈبلیو جی ٹنل</string>
     <string name="error_file_extension">فائل conf یا zip نہیں ہے</string>
-    <string name="no_tunnels">ابھی تک کوئی ٹنلز شامل نہیں کی گئیں!</string>
     <string name="tunnels">ٹنلز</string>
     <string name="tunnel_mobile_data">موبائل ڈیٹا پر ٹنل</string>
     <string name="privacy_policy">رازداری کی پالیسی دیکھیں</string>
@@ -63,7 +62,6 @@
     <string name="init_packet_junk_size">اِنِٹ پیکٹ جنک سائز</string>
     <string name="init_packet_magic_header">اِنِٹ پیکٹ میجک ہیڈر</string>
     <string name="transport_packet_magic_header">ٹرانسپورٹ پیکٹ میجک ہیڈر</string>
-    <string name="see_the">دیکھیں</string>
     <string name="vpn_denied_dialog_title">اجازت نامنظور</string>
     <string name="vpn_settings">وی پی این سسٹم کی ترتیبات</string>
     <string name="always_on_message">وی پی این کنکشن کی اجازت مسترد کر دی گئی ہے۔ براہ کرم چیک کریں</string>
@@ -110,9 +108,7 @@
     <string name="launch_app_settings">ایپ ترتیبات لانچ کریں</string>
     <string name="monitoring_state_changes">ریاستی تبدیلیوں کی نگرانی</string>
     <string name="enter_pin">پن درج کریں</string>
-    <string name="getting_started_guide">شروع کرنے کی گائیڈ</string>
     <string name="response_packet_magic_header">رسپانس پیکٹ میجک ہیڈر</string>
-    <string name="unsure_how">اگر آپ کو یقین نہیں کہ کیسے آگے بڑھیں</string>
     <string name="use_root_shell_for_wifi">وائی فائی کی معلومات حاصل کرنے کے لیے روٹ شیل کا استعمال کریں، مقام کی اجازت کی ضرورت کو روکتے ہوئے</string>
     <string name="response_packet_junk_size">رسپانس پیکٹ جنک سائز</string>
     <string name="junk_packet_minimum_size">جنک پیکٹ کا کم از کم سائز</string>
@@ -161,7 +157,6 @@
     <string name="dns_resolve_error">ڈی این ایس ریزولوشن ناکام</string>
     <string name="auth_error">غیر مجاز</string>
     <string name="service_running_error">سروس نہیں چل رہی</string>
-    <string name="nothing_here_yet">ابھی تک یہاں کچھ نہیں!</string>
     <string name="join_matrix">میٹرکس کمیونٹی میں شامل ہوں</string>
     <string name="delete_logs">لاگز حذف اور صاف کریں</string>
     <string name="select_all">سبھی کو منتخب کریں</string>

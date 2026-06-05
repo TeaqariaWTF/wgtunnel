@@ -128,7 +128,6 @@
     <string name="response_packet_junk_size">Válaszcsomag szemétmérete</string>
     <string name="start">Indítás</string>
     <string name="enable_amnezia_compatibility">Amnezia kompatibilitás engedélyezése</string>
-    <string name="nothing_here_yet">Még nincs itt semmi!</string>
     <string name="mode_disabled_template">A funkció nem érhető el %1$s módban.</string>
     <string name="dns_servers">DNS szerverek</string>
     <string name="support">Támogatás</string>
@@ -160,12 +159,10 @@
     <string name="configuration">Konfiguráció</string>
     <string name="drag_handle">Húzóka</string>
     <string name="global_dns_servers">Globális DNS szerverek</string>
-    <string name="unsure_how">ha nem biztos a folytatásban</string>
     <string name="display_theme">Megjelenítési téma</string>
     <string name="contact">Kapcsolat</string>
     <string name="ports_must_differ">Sikertelen. A proxyknak különböző portokat kell használniuk.</string>
     <string name="notifications">Értesítések</string>
-    <string name="getting_started_guide">kezdő útmutatót</string>
     <string name="join_matrix">Csatlakozás a Matrix közösséghez</string>
     <string name="backup_and_restore">Mentés és visszaállítás</string>
     <string name="email_description">E-mail küldése nekem</string>
@@ -210,7 +207,6 @@
     <string name="public_key">Publikus kulcs</string>
     <string name="show_scripts">Szkriptek megjelenítése</string>
     <string name="allowed_ips">Engedélyezett IP-címek</string>
-    <string name="no_tunnels">Még nincsenek hozzáadott alagutak!</string>
     <string name="monitoring">Figyelés</string>
     <string name="app_permission_title">WG Tunnel Vezérlő Híd.</string>
     <string name="rotate_keys">Kulcsok rotálása</string>
@@ -246,7 +242,6 @@
     <string name="okay">Ok</string>
     <string name="search">Keresés</string>
     <string name="error_file_extension">A fájl nem .conf vagy .zip</string>
-    <string name="see_the">Lásd a</string>
     <string name="listen_port">Figyelt port (Listen port)</string>
     <string name="auth_error">Nincs jogosultság</string>
     <string name="auto">(Auto)</string>

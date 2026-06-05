@@ -18,7 +18,6 @@
     <string name="email_chooser">Invia una email…</string>
     <string name="docs_description">Leggi la documentazione</string>
     <string name="email_description">Inviami una email (in inglese)</string>
-    <string name="no_tunnels">Ancora nessun tunnel aggiunto!</string>
     <string name="peer">Peer</string>
     <string name="mtu">MTU</string>
     <string name="random">(casuale)</string>
@@ -47,7 +46,6 @@
     <string name="prominent_background_location_title">Permesso localizzazione in background</string>
     <string name="auto">(Auto)</string>
     <string name="underload_packet_magic_header">Magic header pacchetto sottocarico</string>
-    <string name="unsure_how">se non sei sicuro su come procedere</string>
     <string name="vpn_settings">Impostazioni sistema VPN</string>
     <string name="always_on_message">Permessi connessione VPN negati. Verifica la</string>
     <string name="junk_packet_maximum_size">Dimensione massima pacchetti indesiderati</string>
@@ -76,8 +74,6 @@
     <string name="response_packet_junk_size">Dimensione pacchetto indesiderato risposta</string>
     <string name="init_packet_magic_header">Magic header pacchetto inizializzazione</string>
     <string name="response_packet_magic_header">Magic header pacchetto risposta</string>
-    <string name="getting_started_guide">guida di avvio rapido</string>
-    <string name="see_the">Vedi la</string>
     <string name="restart_at_boot">Avvia all\'avvio</string>
     <string name="vpn_denied_dialog_title">Permesso Negato</string>
     <string name="root_accepted">Accesso alla shell root accettata</string>
@@ -181,7 +177,6 @@
     <string name="update_check_failed">Controllo degli aggiornamenti fallito.</string>
     <string name="checking_for_update">Controllo la disponibilità di aggiornamenti</string>
     <string name="amoled">AMOLED</string>
-    <string name="nothing_here_yet">Non c\'è ancora nulla qui!</string>
     <string name="range_hint">(%1$d–%2$d)</string>
     <string name="tunnel_name_taken">Nome tunnel già in uso.</string>
     <string name="password_no_spaces">La password non può contenere spazi.</string>

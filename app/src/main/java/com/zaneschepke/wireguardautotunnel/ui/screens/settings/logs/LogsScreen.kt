@@ -1,10 +1,7 @@
-package com.zaneschepke.wireguardautotunnel.ui.screens.settings.monitoring.logs
+package com.zaneschepke.wireguardautotunnel.ui.screens.settings.logs
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,13 +10,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import com.zaneschepke.wireguardautotunnel.R
-import com.zaneschepke.wireguardautotunnel.ui.screens.settings.monitoring.logs.components.LogList
-import com.zaneschepke.wireguardautotunnel.ui.screens.settings.monitoring.logs.components.LogsBottomSheet
+import com.zaneschepke.wireguardautotunnel.ui.screens.settings.logs.components.LogList
+import com.zaneschepke.wireguardautotunnel.ui.screens.settings.logs.components.LogsBottomSheet
+import com.zaneschepke.wireguardautotunnel.ui.screens.tunnels.components.EmptyStateLottie
 import com.zaneschepke.wireguardautotunnel.ui.sideeffect.LocalSideEffect
 import com.zaneschepke.wireguardautotunnel.util.StringValue
 import com.zaneschepke.wireguardautotunnel.viewmodel.LoggerViewModel
@@ -35,6 +31,8 @@ fun LogsScreen(
     sharedViewModel: SharedAppViewModel = koinActivityViewModel(),
 ) {
     val loggerState by viewModel.collectAsState()
+
+    if (loggerState.isLoading) return
 
     val lazyColumnListState = rememberLazyListState()
     var isAutoScrolling by rememberSaveable { mutableStateOf(true) }
@@ -103,14 +101,8 @@ fun LogsScreen(
     }
 
     if (loggerState.messages.isEmpty()) {
-        return Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = stringResource(R.string.nothing_here_yet),
-                fontStyle = FontStyle.Italic,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
+        EmptyStateLottie(message = stringResource(R.string.no_tunnels_yet))
+        return
     }
 
     LogList(

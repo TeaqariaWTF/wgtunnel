@@ -7,7 +7,6 @@
     <string name="privacy_policy_url" translatable="false">https://wgtunnel.com/privacy-policy/</string>
     <string name="docs_wildcards" translatable="false">https://wgtunnel.com/docs/auto-tunneling/#use-name-wildcards</string>
     <string name="error_file_extension">Dosya .conf veya .zip değil</string>
-    <string name="no_tunnels">Henüz tünel eklenmedi!</string>
     <string name="tunnels">Tüneller</string>
     <string name="tunnel_mobile_data">Mobil veride tünel</string>
     <string name="privacy_policy">Gizlilik politikasını görüntüle</string>
@@ -89,9 +88,6 @@
     <string name="transport_packet_magic_header">Taşıma paketi sihirli başlığı</string>
     <string name="underload_packet_magic_header">Düşük yük paketi sihirli başlığı</string>
     <string name="telegram_url" translatable="false">https://t.me/wgtunnel</string>
-    <string name="unsure_how">nasıl devam edeceğinizden emin değilseniz</string>
-    <string name="see_the">Bakınız</string>
-    <string name="getting_started_guide">başlangıç kılavuzu</string>
     <string name="restart_at_boot">Başlangıçta yeniden başlat</string>
     <string name="vpn_denied_dialog_title">İzin Reddedildi</string>
     <string name="vpn_settings">VPN sistem ayarları</string>
@@ -218,7 +214,6 @@
     <string name="donate_title">Donate</string>
     <string name="active_tunnel_update_failed">Active tunnel update failed</string>
     <string name="start">Start</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="already_donated">Already donated</string>
     <string name="kofi">Ko-fi</string>

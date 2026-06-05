@@ -6,7 +6,6 @@
     <string name="tunnels">Tunnels</string>
     <string name="privacy_policy">Privacybeleid</string>
     <string name="tunnel_on_ethernet">Tunnel bij ethernet</string>
-    <string name="no_tunnels">Nog geen tunnels geconfigureerd!</string>
     <string name="okay">Oke</string>
     <string name="include">Meenemen</string>
     <string name="addresses">Adres</string>
@@ -78,7 +77,6 @@
     <string name="error_no_file_explorer">Geen bestandsverkenner geïnstalleerd</string>
     <string name="response_packet_magic_header">Response packet magic header</string>
     <string name="underload_packet_magic_header">Underload packet magic header</string>
-    <string name="unsure_how">als je niet weet hoe verder te gaan</string>
     <string name="restart_at_boot">Start na systeemstart</string>
     <string name="always_on_message">VPN verbindingstoegang geweigerd. Controleer aub de</string>
     <string name="always_on_message2">om zeker te zijn dat Altijd-aan VPN is uitgeschakeld voor alle andere apps, en probeer dan opnieuw</string>
@@ -86,8 +84,6 @@
     <string name="never">Nooit</string>
     <string name="logs">Logboeken</string>
     <string name="email_description">Stuur mij een email</string>
-    <string name="see_the">Bekijk de</string>
-    <string name="getting_started_guide">\"aan de slag\" handleiding</string>
     <string name="vpn_denied_dialog_title">Toegang geweigerd</string>
     <string name="vpn_settings">VPN systeeminstellingen</string>
     <string name="root_accepted">Root toegang verleend</string>
@@ -159,7 +155,6 @@
     <string name="auth_error">Niet toegelaten</string>
     <string name="service_running_error">Service niet actief</string>
     <string name="enable_remote_app_control">Activeer applicatie controle vanop afstand</string>
-    <string name="nothing_here_yet">Nog niets hier!</string>
     <string name="select_all">Selecteer alles</string>
     <string name="export_success">Export gelukt</string>
     <string name="download">Download</string>

@@ -140,8 +140,6 @@ int bypass_socket(int fd) {
     jboolean attached = JNI_FALSE;
     jint rs = -1;
 
-    LOGD("bypass_socket called with FD: %d", fd);
-
     if (g_jvm == NULL) {
         LOGE("g_jvm is NULL");
         return 0;

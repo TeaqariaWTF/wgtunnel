@@ -22,7 +22,6 @@
     <string name="init_packet_junk_size">Tamanho de pacote-lixo inicial</string>
     <string name="response_packet_junk_size">Tamanho de resposta de pacote-lixo</string>
     <string name="app_name">WG Tunnel</string>
-    <string name="no_tunnels">Nenhum túnel foi adicionado!</string>
     <string name="error_file_extension">O ficheiro não é .conf ou .zip</string>
     <string name="prominent_background_location_message">Este recurso precisa de permissões de localização em segundo plano para ativar o monitoramento do SSID da rede Wi-Fi mesmo quando a aplicação está fechado. Para mais pormenores, por favor veja a Política de Privacidade no ecrã de Suporte.</string>
     <string name="enabled_app_shortcuts">Ativar atalhos de aplicações</string>
@@ -77,9 +76,6 @@
     <string name="set_primary_tunnel">Selecionar como túnel principal</string>
     <string name="support">Suporte</string>
     <string name="settings">Configurações</string>
-    <string name="unsure_how">se não tiver certeza em como continuar</string>
-    <string name="see_the">Veja o</string>
-    <string name="getting_started_guide">guia de início rápido</string>
     <string name="vpn_denied_dialog_title">Permissão negada</string>
     <string name="vpn_settings">Configurações do sistema VPN</string>
     <string name="always_on_message">A permissão de conexão VPN foi negada. Por favor, verifique</string>
@@ -200,7 +196,6 @@
     <string name="donate_title">Donate</string>
     <string name="active_tunnel_update_failed">Active tunnel update failed</string>
     <string name="start">Start</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="already_donated">Already donated</string>
     <string name="kofi">Ko-fi</string>

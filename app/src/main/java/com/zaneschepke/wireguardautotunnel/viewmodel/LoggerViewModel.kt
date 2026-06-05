@@ -13,7 +13,9 @@ import com.zaneschepke.wireguardautotunnel.util.FileUtils
 import com.zaneschepke.wireguardautotunnel.util.StringValue
 import com.zaneschepke.wireguardautotunnel.util.extensions.toUserFriendlyTimestamp
 import java.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
@@ -38,9 +40,16 @@ class LoggerViewModel(
                                 state.messages.toMutableList().apply {
                                     if (size >= MAX_LOG_SIZE) removeAt(0)
                                     add(logMessage)
-                                }
+                                },
+                            isLoading = false,
                         )
                     }
+                }
+            }
+            intent {
+                delay(300.milliseconds)
+                if (state.isLoading) {
+                    reduce { state.copy(isLoading = false) }
                 }
             }
         }

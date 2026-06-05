@@ -4,7 +4,6 @@
     <string name="app_permission_title">ვგ ტუნელის კონტროლის ხიდი</string>
     <string name="app_permission_description">მართე ტუნელის და ავტო-ტუნელის ფუნქციები.</string>
     <string name="error_file_extension">ფაილი არ წარმოადგენს .conf ან .zip ფორმატს</string>
-    <string name="no_tunnels">ტუნელები ჯერ არ არის დამატებული!</string>
     <string name="tunnels">ტუნელები</string>
     <string name="tunnel_mobile_data">ტუნელი მობილური ინტერნეტით</string>
     <string name="privacy_policy">კონფიდენციალურობის პოლიტიკა</string>
@@ -63,8 +62,6 @@
     <string name="enter_pin">შეიყვანეთ პინი</string>
     <string name="create_pin">შექმენით პინი</string>
     <string name="enable_app_lock">გააქტიურე აპლიკაციის დაბლოკვა</string>
-    <string name="see_the">ნახეთ</string>
-    <string name="getting_started_guide">საწყისი ინსტრუქცია</string>
     <string name="restart_at_boot">ჩართვისას დაწყება</string>
     <string name="vpn_denied_dialog_title">უფლება უარყოფილია</string>
     <string name="auto_tunnel_channel_id" translatable="false">Auto-tunnel Channel</string>
@@ -215,7 +212,6 @@
     <string name="response_packet_junk_size">Response packet junk size</string>
     <string name="start">Start</string>
     <string name="enable_amnezia_compatibility">Enable Amnezia compatibility</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="support">Support</string>
     <string name="already_donated">Already donated</string>
@@ -241,7 +237,6 @@
     <string name="configuration">Configuration</string>
     <string name="drag_handle">Drag Handle</string>
     <string name="global_dns_servers">Global DNS servers</string>
-    <string name="unsure_how">if you are unsure how to proceed</string>
     <string name="display_theme">Display theme</string>
     <string name="contact">Contact</string>
     <string name="ports_must_differ">Failed. Proxies must have different ports.</string>

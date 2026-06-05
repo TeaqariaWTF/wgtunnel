@@ -2,8 +2,6 @@
 <resources>
     <string name="tunnels">Tunele</string>
     <string name="app_name">WG Tunnel</string>
-    <string name="unsure_how">jeśli nie masz pewności, jak postępować</string>
-    <string name="getting_started_guide">przewodnik wprowadzający,</string>
     <string name="peer">Peer</string>
     <string name="rotate_keys">Rotuj klucze</string>
     <string name="tunnel_on_ethernet">Tunel przez sieć ethernetową</string>
@@ -24,7 +22,6 @@
     <string name="response_packet_magic_header">Nagłówek magicznego pakietu odpowiedzi</string>
     <string name="transport_packet_magic_header">Nagłówek magicznego pakietu transportowego</string>
     <string name="underload_packet_magic_header">Nagłówek magicznego pakietu niedociążenia</string>
-    <string name="see_the">Zobacz</string>
     <string name="restart_at_boot">Uruchom przy rozruchu</string>
     <string name="never">Nigdy</string>
     <string name="show_amnezia_properties">Pokaż właściwości protokołu Amnezia</string>
@@ -111,7 +108,6 @@
     <string name="stop_auto">Zatrzymaj autotunel</string>
     <string name="email_chooser">Wyślij wiadomość e-mail…</string>
     <string name="okay">OK</string>
-    <string name="no_tunnels">Nie dodano jeszcze żadnych tuneli!</string>
     <string name="exclude">Wyklucz</string>
     <string name="docs_description">Przeczytaj dokumentację</string>
     <string name="email_description">Wyślij mi wiadomość e-mail</string>
@@ -164,7 +160,6 @@
     <string name="add_tunnel">Dodaj tunel</string>
     <string name="select">Wybierz</string>
     <string name="dns_resolve_error">Rozwiązywanie DNS się nie powiodło</string>
-    <string name="nothing_here_yet">Jeszcze nic tu nie ma!</string>
     <string name="select_all">Wybierz wszystkie</string>
     <string name="download">Pobierz</string>
     <string name="version_template">Wersja: %1$s</string>

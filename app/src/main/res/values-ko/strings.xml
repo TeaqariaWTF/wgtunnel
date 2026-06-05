@@ -127,7 +127,6 @@
     <string name="response_packet_junk_size">응답 패킷 정크 크기</string>
     <string name="start">시작</string>
     <string name="enable_amnezia_compatibility">Amnezia 호환 켬</string>
-    <string name="nothing_here_yet">아직 아무것도 없습니다!</string>
     <string name="mode_disabled_template">%1$s 모드에서는 이용할 수 없습니다.</string>
     <string name="dns_servers">DNS 서버</string>
     <string name="support">지원</string>
@@ -159,13 +158,11 @@
     <string name="configuration">설정</string>
     <string name="drag_handle">핸들 드래그</string>
     <string name="global_dns_servers">글로벌 DNS 서버</string>
-    <string name="unsure_how">진행하는 법을 모르겠다면</string>
     <string name="display_theme">표시 테마</string>
     <string name="contact">연락</string>
     <string name="ports_must_differ">실패. 프록시는 다른 포트를 이용해야 합니다.</string>
     <string name="notifications">알림</string>
     <string name="cookie_packet_junk_size">쿠키 패킷 정크 크기</string>
-    <string name="getting_started_guide">시작 도움말</string>
     <string name="join_matrix">Matrix 커뮤니티 참여</string>
     <string name="backup_and_restore">백업 및 복원</string>
     <string name="email_description">이메일 전송하기</string>
@@ -210,7 +207,6 @@
     <string name="public_key">공개 키</string>
     <string name="show_scripts">스크립트 표시</string>
     <string name="allowed_ips">허용된 IP</string>
-    <string name="no_tunnels">추가한 터널이 없습니다!</string>
     <string name="monitoring">모니터링</string>
     <string name="app_permission_title">터널 및 자동 터널 기능을 제어합니다.</string>
     <string name="rotate_keys">키 순환</string>
@@ -247,7 +243,6 @@
     <string name="okay">확인</string>
     <string name="search">검색</string>
     <string name="error_file_extension">파일이 .conf 혹은 .zip 형식이 아닙니다</string>
-    <string name="see_the">참고:</string>
     <string name="listen_port">수신 포트</string>
     <string name="auth_error">미인증</string>
     <string name="auto">(자동)</string>

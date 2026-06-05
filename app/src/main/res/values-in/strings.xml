@@ -5,7 +5,6 @@
     <string name="init_packet_junk_size">Ukuran sampah paket init</string>
     <string name="app_name">WG Tunnel</string>
     <string name="error_file_extension">File bukan berformat .conf atau .zip</string>
-    <string name="no_tunnels">Belum ada terowongan yang ditambahkan!</string>
     <string name="tunnels">Terowongan</string>
     <string name="tunnel_mobile_data">Terowongan pada data seluler</string>
     <string name="privacy_policy">Kebijakan privasi</string>
@@ -54,9 +53,6 @@
     <string name="response_packet_magic_header">Header ajaib paket respons</string>
     <string name="transport_packet_magic_header">Header ajaib paket transport</string>
     <string name="underload_packet_magic_header">Header ajaib paket underload</string>
-    <string name="unsure_how">jika Anda tidak yakin cara melanjutkan</string>
-    <string name="see_the">Lihat</string>
-    <string name="getting_started_guide">panduan memulai</string>
     <string name="restart_at_boot">Mulai saat booting</string>
     <string name="vpn_denied_dialog_title">Izin Ditolak</string>
     <string name="vpn_settings">Pengaturan sistem VPN</string>
@@ -172,7 +168,6 @@
     <string name="active_tunnel_update_failed">Pembaruan terowongan aktif gagal</string>
     <string name="start">Mulai</string>
     <string name="enable_amnezia_compatibility">Aktifkan kompatibilitas Amnezia</string>
-    <string name="nothing_here_yet">Belum ada apa pun di sini!</string>
     <string name="mode_disabled_template">Fitur tidak tersedia dalam mode %1$s.</string>
     <string name="dns_servers">Server DNS</string>
     <string name="already_donated">Sudah berdonasi</string>

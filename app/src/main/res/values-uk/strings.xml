@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="no_tunnels">Тунелі ще не додані!</string>
     <string name="app_name">WG Tunnel</string>
     <string name="tunnels">Тунелі</string>
     <string name="okay">ОК</string>
@@ -20,7 +19,6 @@
     <string name="error_root_denied">Рут-доступ заборонено</string>
     <string name="incorrect_pin">Невірний PIN-код</string>
     <string name="transport_packet_magic_header">Заголовок транспортного пакету</string>
-    <string name="getting_started_guide">інструкція щодо початку роботи</string>
     <string name="error_file_extension">Файл не є .conf або .zip файлом</string>
     <string name="tunnel_mobile_data">Тунелювати мобільні дані</string>
     <string name="privacy_policy">Переглянути політику конфіденційності</string>
@@ -82,8 +80,6 @@
     <string name="init_packet_magic_header">Заголовок пакету ініціалізації</string>
     <string name="underload_packet_magic_header">Заголовок пакету під навантаженням</string>
     <string name="response_packet_magic_header">Заголовок пакету відповіді</string>
-    <string name="unsure_how">, якщо не впевнені що робити далі</string>
-    <string name="see_the">Дивіться</string>
     <string name="skip">Пропустити</string>
     <string name="trusted_wifi_names">Довірені мережі Wi-Fi</string>
     <string name="vpn_denied_dialog_title">Немає дозволу</string>
@@ -207,7 +203,6 @@
     <string name="donate_title">Подяка</string>
     <string name="active_tunnel_update_failed">Не вдалося оновити активний тунель</string>
     <string name="start">Запустити</string>
-    <string name="nothing_here_yet">Тут нічого нема!</string>
     <string name="mode_disabled_template">Ця функція недоступна в режимі %1$s.</string>
     <string name="already_donated">Ви вже підтримали</string>
     <string name="kofi">Ko-fi</string>

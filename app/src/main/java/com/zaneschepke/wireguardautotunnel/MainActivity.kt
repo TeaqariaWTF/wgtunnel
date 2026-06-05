@@ -95,8 +95,8 @@ import com.zaneschepke.wireguardautotunnel.ui.screens.settings.dns.DnsSettingsSc
 import com.zaneschepke.wireguardautotunnel.ui.screens.settings.globals.TunnelGlobalsScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.settings.integrations.AndroidIntegrationsScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.settings.lockdown.LockdownSettingsScreen
+import com.zaneschepke.wireguardautotunnel.ui.screens.settings.logs.LogsScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.settings.monitoring.MonitoringScreen
-import com.zaneschepke.wireguardautotunnel.ui.screens.settings.monitoring.logs.LogsScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.settings.security.SecurityScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.support.SupportScreen
 import com.zaneschepke.wireguardautotunnel.ui.screens.support.donate.DonateScreen

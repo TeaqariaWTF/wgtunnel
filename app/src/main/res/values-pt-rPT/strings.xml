@@ -15,7 +15,6 @@
     <string name="support">Suporte</string>
     <string name="mtu">MTU</string>
     <string name="error_file_extension">O ficheiro não é .conf ou .zip</string>
-    <string name="no_tunnels">Nenhum túnel foi adicionado!</string>
     <string name="tunnel_mobile_data">Túnel em dados móveis</string>
     <string name="privacy_policy">Ver a Política de Privacidade</string>
     <string name="okay">OK</string>
@@ -40,7 +39,6 @@
     <string name="junk_packet_count">Quantidade de pacotes-lixo</string>
     <string name="junk_packet_minimum_size">Tamanho mínimo de pacote-lixo</string>
     <string name="response_packet_junk_size">Tamanho de resposta de pacote-lixo</string>
-    <string name="unsure_how">se não tiver certeza em como continuar</string>
     <string name="always_on_message">A permissão de conexão VPN foi negada. Por favor, verifique</string>
     <string name="root_accepted">Shell root aceito</string>
     <string name="show_amnezia_properties">Mostrar propriedades de Amnezia</string>
@@ -84,8 +82,6 @@
     <string name="seconds">segundos</string>
     <string name="no_browser_detected">Nenhum navegador detetado</string>
     <string name="open_issue">Abrir um problema</string>
-    <string name="see_the">Veja o</string>
-    <string name="getting_started_guide">guia de início rápido</string>
     <string name="always_on_message2">para ter certeza que VPN Sempre-ligada é desligada para todas as outras aplicações e tente novamente</string>
     <string name="restart_at_boot">Ativar na inicialização</string>
     <string name="native_kill_switch">Interruptor de desligamento padrão</string>
@@ -201,7 +197,6 @@
     <string name="donate_title">Donate</string>
     <string name="active_tunnel_update_failed">Active tunnel update failed</string>
     <string name="start">Start</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="already_donated">Already donated</string>
     <string name="kofi">Ko-fi</string>

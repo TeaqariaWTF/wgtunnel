@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="no_tunnels">您还没有添加隧道！</string>
     <string name="tunnels">隧道列表</string>
     <string name="privacy_policy">隐私政策</string>
     <string name="tunnel_mobile_data">允许隧道使用数据流量</string>
@@ -103,9 +102,6 @@
     <string name="underload_packet_magic_header">欠载数据包 magic header</string>
     <string name="restart_at_boot">开机时启动</string>
     <string name="learn_more">了解更多</string>
-    <string name="unsure_how">如果您不确定如何进行</string>
-    <string name="see_the">请查阅</string>
-    <string name="getting_started_guide">入门指南</string>
     <string name="skip">取消</string>
     <string name="launch_app_settings">打开应用设置</string>
     <string name="use_wildcards">使用名称通配符</string>
@@ -163,7 +159,6 @@
     <string name="app_permission_description">控制隧道和自动隧道功能.</string>
     <string name="app_permission_title">控制隧道和自动隧道功能。</string>
     <string name="export_logs">导出已保存的日志</string>
-    <string name="nothing_here_yet">此处还什么都没有！</string>
     <string name="select_all">全选</string>
     <string name="version_template">当前版本：%1$s</string>
     <string name="export_success">导出成功</string>

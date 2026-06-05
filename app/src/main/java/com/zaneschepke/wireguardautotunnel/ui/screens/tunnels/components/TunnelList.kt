@@ -74,7 +74,7 @@ fun TunnelList(
     ) {
         if (uiState.tunnels.isEmpty()) {
             item {
-                GettingStartedLabel(
+                GettingStartedSection(
                     onClick = { context.openWebUrl(it) },
                     modifier = Modifier.animateItem(),
                 )

@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">WG Tunnel</string>
     <string name="error_file_extension">Datei ist keine .conf oder .zip</string>
-    <string name="no_tunnels">Noch keine Tunnel hinzugefügt!</string>
     <string name="tunnels">Tunnel</string>
     <string name="tunnel_mobile_data">Tunnel für mobile Daten</string>
     <string name="privacy_policy">Datenschutzbestimmungen</string>
@@ -78,11 +77,8 @@
     <string name="junk_packet_minimum_size">Junk-Paket minimale Grösse</string>
     <string name="response_packet_junk_size">Antwort Junk-Paketgröße</string>
     <string name="init_packet_magic_header">Initialpaket magic header</string>
-    <string name="getting_started_guide">Schnellstartanleitung</string>
     <string name="transport_packet_magic_header">Transportpaket magic header</string>
     <string name="underload_packet_magic_header">Unterlastpaket magic header</string>
-    <string name="see_the">wirf einen Blick in die</string>
-    <string name="unsure_how">Wenn du nicht sicher bist, wie du weiterverfahren sollst</string>
     <string name="response_packet_magic_header">Antwortpaket magic header</string>
     <string name="restart_at_boot">Beim Hochfahren starten</string>
     <string name="vpn_settings">VPN-Systemeinstellungen</string>
@@ -163,7 +159,6 @@
     <string name="dns_resolve_error">DNS-Auflösung fehlgeschlagen</string>
     <string name="camera_permission_required">Kameraberechtigung erforderlich</string>
     <string name="delete">Löschen</string>
-    <string name="nothing_here_yet">Noch nix hier!</string>
     <string name="select_all">Alles auswählen</string>
     <string name="version_template">Version: %1$s</string>
     <string name="export_success">Export Erfolg</string>

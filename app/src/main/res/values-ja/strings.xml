@@ -30,7 +30,6 @@
     <string name="preshared_key">事前共有鍵</string>
     <string name="delete_tunnel_message">このトンネルを削除しますか？</string>
     <string name="yes">はい</string>
-    <string name="no_tunnels">VPNトンネルはまだ追加されていません！</string>
     <string name="tunnels">VPNトンネル</string>
     <string name="privacy_policy">プライバシーポリシーを見る</string>
     <string name="prominent_background_location_message">この機能は、アプリケーションを閉じている間でもWi-Fi SSIDの監視を可能にするため、バックグラウンドでの位置情報の許可が必要です。 詳しくはサポート画面のプライバシーポリシーをご覧ください。</string>
@@ -44,7 +43,6 @@
     <string name="endpoint">エンドポイント</string>
     <string name="add_peer">ピアの追加</string>
     <string name="delete_tunnel">トンネルの削除</string>
-    <string name="unsure_how">操作方法がわからない場合</string>
     <string name="tunnel_on_ethernet">Ethernetでのトンネルの有効化</string>
     <string name="open_issue">問題を報告する</string>
     <string name="incorrect_pin">PINが無効です</string>
@@ -60,7 +58,6 @@
     <string name="enable_app_lock">アプリロックを有効にする</string>
     <string name="always_on_message">VPN接続の許可が拒否されました。</string>
     <string name="always_on_message2">他のすべてのアプリで常時接続VPNがオフになっていることを確認して、再度お試しください</string>
-    <string name="getting_started_guide">スタートガイド</string>
     <string name="notifications">通知</string>
     <string name="logs">ログ</string>
     <string name="add_from_clipboard">クリップボードからの追加</string>
@@ -164,7 +161,6 @@
     <string name="response_packet_junk_size">Response packet junk size</string>
     <string name="start">Start</string>
     <string name="enable_amnezia_compatibility">Enable Amnezia compatibility</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="support">Support</string>
     <string name="already_donated">Already donated</string>
@@ -260,7 +256,6 @@
     <string name="splt_tunneling">Split tunneling</string>
     <string name="okay">Okay</string>
     <string name="search">Search</string>
-    <string name="see_the">See the</string>
     <string name="listen_port">Listen port</string>
     <string name="auth_error">Unauthorized</string>
     <string name="auto">(Auto)</string>

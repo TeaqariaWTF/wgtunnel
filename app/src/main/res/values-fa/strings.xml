@@ -3,7 +3,6 @@
     <string name="app_permission_title">پل کنترل تونل وایرگاردکنترل تونل‌ها و قابلیت‌های تونل خودکار.</string>
     <string name="privacy_policy">مشاهده سیاست حفظ حریم خصوصی</string>
     <string name="error_file_extension">فایل .conf یا .zip نیست.</string>
-    <string name="no_tunnels">هنوز تونلی اضافه نشده!</string>
     <string name="tunnels">تونل‌ها</string>
     <string name="tunnel_mobile_data">تونل روی داده تلفن همراه</string>
     <string name="okay">باشه</string>
@@ -137,7 +136,6 @@
     <string name="response_packet_junk_size">Response packet junk size</string>
     <string name="start">Start</string>
     <string name="enable_amnezia_compatibility">Enable Amnezia compatibility</string>
-    <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="mode_disabled_template">Feature unavailable in %1$s mode.</string>
     <string name="dns_servers">DNS servers</string>
     <string name="support">Support</string>
@@ -168,12 +166,10 @@
     <string name="configuration">Configuration</string>
     <string name="drag_handle">Drag Handle</string>
     <string name="global_dns_servers">Global DNS servers</string>
-    <string name="unsure_how">if you are unsure how to proceed</string>
     <string name="display_theme">Display theme</string>
     <string name="contact">Contact</string>
     <string name="ports_must_differ">Failed. Proxies must have different ports.</string>
     <string name="notifications">Notifications</string>
-    <string name="getting_started_guide">getting started guide</string>
     <string name="join_matrix">Join Matrix community</string>
     <string name="backup_and_restore">Backup and restore</string>
     <string name="email_description">Send me an email</string>
@@ -248,7 +244,6 @@
     <string name="error_ssid_exists">SSID already exists</string>
     <string name="splt_tunneling">Split tunneling</string>
     <string name="search">Search</string>
-    <string name="see_the">See the</string>
     <string name="listen_port">Listen port</string>
     <string name="auth_error">Unauthorized</string>
     <string name="auto">(Auto)</string>

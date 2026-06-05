@@ -367,11 +367,13 @@ fun currentRouteAsNavbarState(
                                                 stringResource(R.string.add_tunnel),
                                             )
                                         }
-                                        IconButton(onClick = { navController.push(Sort) }) {
-                                            Icon(
-                                                Icons.AutoMirrored.Rounded.Sort,
-                                                stringResource(R.string.sort),
-                                            )
+                                        if (globalState.tunnelNames.size > 1) {
+                                            IconButton(onClick = { navController.push(Sort) }) {
+                                                Icon(
+                                                    Icons.AutoMirrored.Rounded.Sort,
+                                                    stringResource(R.string.sort),
+                                                )
+                                            }
                                         }
                                     }
                                 else ->

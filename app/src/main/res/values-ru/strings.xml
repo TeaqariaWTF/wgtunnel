@@ -7,7 +7,6 @@
     <string name="peer">Пир</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="add_from_qr">Добавить из QR-кода</string>
-    <string name="no_tunnels">Туннели ещё не добавлены!</string>
     <string name="exclude">Исключить</string>
     <string name="include">Включить</string>
     <string name="config_changes_saved">Изменения конфигурации сохранены.</string>
@@ -29,7 +28,6 @@
     <string name="init_packet_junk_size">S1</string>
     <string name="response_packet_junk_size">S2</string>
     <string name="init_packet_magic_header">H1</string>
-    <string name="see_the">Смотрите</string>
     <string name="tunnel_mobile_data">Туннелировать через сотовую сеть</string>
     <string name="tunnel_on_ethernet">Туннелировать через Ethernet</string>
     <string name="cancel">Отмена</string>
@@ -81,8 +79,6 @@
     <string name="junk_packet_minimum_size">Jmin</string>
     <string name="response_packet_magic_header">H2</string>
     <string name="transport_packet_magic_header">H4</string>
-    <string name="getting_started_guide">руководство по началу работы</string>
-    <string name="unsure_how">, если не уверены, что делать дальше</string>
     <string name="underload_packet_magic_header">H3</string>
     <string name="root_accepted">Root-доступ разрешён</string>
     <string name="always_on_message">Разрешение на VPN-соединение было отклонено, проверьте</string>
@@ -163,7 +159,6 @@
     <string name="export_failed">Экспорт не выполнен</string>
     <string name="enable_remote_app_control">Удалённое управление приложением</string>
     <string name="error_download_failed">Невозможно скачать конфигурацию</string>
-    <string name="nothing_here_yet">Здесь пока ничего нет!</string>
     <string name="select_all">Выбрать все</string>
     <string name="export_success">Экспорт успешно выполнен</string>
     <string name="check_for_update">Проверить обновление</string>

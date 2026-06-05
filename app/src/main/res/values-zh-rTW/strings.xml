@@ -46,7 +46,6 @@
     <string name="edit_tunnel">編輯隧道</string>
     <string name="vpn_settings">系統 VPN 設定</string>
     <string name="support">支援</string>
-    <string name="getting_started_guide">取得入門指南</string>
     <string name="settings">設定</string>
     <string name="restart_at_boot">開機時啟動</string>
     <string name="junk_packet_count">垃圾封包數</string>
@@ -74,12 +73,9 @@
     <string name="endpoint">終端點</string>
     <string name="location_services_not_detected">未啟用定位服務</string>
     <string name="junk_packet_maximum_size">垃圾封包最大值</string>
-    <string name="no_tunnels">還沒有新增任何隧道！</string>
     <string name="allowed_ips">允許的 IP</string>
     <string name="junk_packet_minimum_size">垃圾封包最小值</string>
     <string name="error_no_file_explorer">未安裝任何檔案管理器</string>
-    <string name="unsure_how">如果您不確定如何進行</string>
-    <string name="see_the">請參閱</string>
     <string name="local_logging">本機日誌監視器</string>
     <string name="email_description">給作者寄電子郵件</string>
     <string name="always_on_vpn_support">允許永久連線的 VPN</string>
@@ -104,7 +100,6 @@
     <string name="add_tunnel">新增隧道</string>
     <string name="camera_permission_required">需要相機權限</string>
     <string name="dns_resolve_error">DNS 解析失敗</string>
-    <string name="nothing_here_yet">這裡目前還沒有任何東西！</string>
     <string name="remove_amnezia_compatibility">移除 Amnezia 相容性</string>
     <string name="enable_amnezia_compatibility">啟用 Amnezia 相容性</string>
     <string name="show_amnezia_properties">顯示 Amnezia 屬性</string>
