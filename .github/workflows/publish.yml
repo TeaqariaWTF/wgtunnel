@@ -234,7 +234,7 @@ jobs:
       - name: Deploy with fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2' # Not needed with a .ruby-version file
+          ruby-version: '3.4'
           bundler-cache: true
 
       - name: Distribute app to Prod track 🚀
