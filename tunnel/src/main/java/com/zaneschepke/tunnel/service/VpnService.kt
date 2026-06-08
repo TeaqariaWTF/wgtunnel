@@ -20,8 +20,6 @@ import com.zaneschepke.tunnel.model.KillSwitchConfig
 import com.zaneschepke.tunnel.util.parseDns
 import com.zaneschepke.tunnel.util.parseInetNetwork
 import com.zaneschepke.wireguardautotunnel.parser.Config
-import java.io.IOException
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,6 +29,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
+import java.io.IOException
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration.Companion.milliseconds
 
 class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
@@ -38,12 +39,12 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
     private val serviceHolder: ServiceHolder by inject(ServiceHolder::class.java)
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val shutdownScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @Volatile private var userActivatedShutdown = false
     private var hevBridgeJob: Job? = null
 
     @Volatile private var fd: ParcelFileDescriptor? = null
-
-    val builder: Builder
-        get() = Builder()
 
     override fun onCreate() {
         serviceHolder.set(this)
@@ -61,6 +62,7 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
         )
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     override fun onDestroy() {
         Timber.d("VpnService destroyed")
         try {
@@ -70,10 +72,23 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
             hevBridgeJob?.cancel()
             serviceScope.cancel()
             stopHevSocks5Bridge()
+            if(!userActivatedShutdown) {
+                Timber.d("Service being killed by system, clean up tunnels")
+                shutdownScope.launch {
+                    // TODO eventually, this should only shut down vpn mode tunnels with future multi tunnel
+                    backend.stopAllActiveTunnels()
+                }
+            }
         } finally {
             serviceHolder.signalVpnServiceDestroyed()
             super.onDestroy()
         }
+    }
+
+    @OptIn(ExperimentalAtomicApi::class)
+    fun shutdown() {
+        userActivatedShutdown = true
+        stopSelf()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -159,8 +174,9 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
     override fun setKillSwitch(config: KillSwitchConfig?) {
         if (config == null) return disableKillSwitch()
+        fd?.close()
         fd =
-            builder
+            Builder()
                 .apply {
                     setSession(LOCKDOWN_SESSION_NAME)
                     addAddress(IPV4_INTERFACE_ADDRESS, 32)
@@ -180,27 +196,14 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                     addRoute(IPV6_DEFAULT_ROUTE, 0)
                     setMtu(DEFAULT_MTU)
                     addDnsServer(DEFAULT_DNS_SERVER)
-
-                    // TODO could add an options to kill switch settings for this for ping
-                    // sorts/update checks, etc to bypass killswitch
-                    // addDisallowedApplication(this@VpnService.packageName)
                 }
                 .establish()
     }
 
     fun createTunInterface(tunnel: Tunnel, config: Config): ParcelFileDescriptor? {
-        return builder
+        return Builder()
             .apply {
                 setSession(tunnel.name)
-
-                val isSplitTunneling =
-                    !config.`interface`.excludedApplications.isNullOrEmpty() ||
-                        !config.`interface`.includedApplications.isNullOrEmpty()
-
-                // important for Android Auto in split tunnel scenarios
-                // TODO Could make this a standalone feature toggle for strictness as it allows
-                // secondary network binding from other apps
-                if (isSplitTunneling) allowBypass()
 
                 config.`interface`.includedApplications?.forEach { addAllowedApplication(it) }
                 config.`interface`.excludedApplications?.forEach { addDisallowedApplication(it) }
@@ -216,16 +219,30 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                     dnsConfig.searchDomains.forEach { addSearchDomain(it) }
                 }
 
+                var sawDefaultRoute = false
+
                 config.peers.forEach { peer ->
-                    peer.allowedIPs?.split(",")?.forEach { entry ->
-                        val (address, prefix) = entry.parseInetNetwork()
-                        Timber.d("Adding route from config: $address/$prefix")
-                        addRoute(address, prefix)
-                    }
+                    peer.allowedIPs
+                        ?.split(",")
+                        ?.map { it.trim() }
+                        ?.filter { it.isNotEmpty() }
+                        ?.forEach { entry ->
+
+                            val (address, prefix) = entry.parseInetNetwork()
+
+                            if (prefix == 0) {
+                                sawDefaultRoute = true
+                            }
+
+                            Timber.d("Adding route from config: $address/$prefix")
+                            addRoute(address, prefix)
+                        }
                 }
 
-                allowFamily(OsConstants.AF_INET)
-                allowFamily(OsConstants.AF_INET6)
+                if (!(sawDefaultRoute && config.peers.size == 1)) {
+                    allowFamily(OsConstants.AF_INET)
+                    allowFamily(OsConstants.AF_INET6)
+                }
 
                 val mtu = config.`interface`.mtu ?: DEFAULT_MTU
                 setMtu(mtu)

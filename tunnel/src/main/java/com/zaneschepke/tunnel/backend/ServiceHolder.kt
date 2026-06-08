@@ -84,7 +84,7 @@ internal class ServiceHolder(val context: Context) {
 
         tunnelServiceDestroyed = CompletableDeferred()
 
-        service.stopSelf()
+        service.shutdown()
         tunnelService = CompletableDeferred()
         withTimeoutOrNull(1_000L.milliseconds) { tunnelServiceDestroyed.await() }
     }
@@ -98,7 +98,7 @@ internal class ServiceHolder(val context: Context) {
 
         vpnServiceDestroyed = CompletableDeferred()
 
-        service.stopSelf()
+        service.shutdown()
         vpnService = CompletableDeferred()
         withTimeoutOrNull(1_000L.milliseconds) { vpnServiceDestroyed.await() }
     }

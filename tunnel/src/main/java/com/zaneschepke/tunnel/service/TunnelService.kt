@@ -6,13 +6,21 @@ import androidx.lifecycle.LifecycleService
 import com.zaneschepke.tunnel.backend.Backend
 import com.zaneschepke.tunnel.backend.ServiceHolder
 import com.zaneschepke.tunnel.backend.ServiceHolder.Companion.alwaysOnCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 class TunnelService : LifecycleService() {
 
     private val backend: Backend by inject(Backend::class.java)
     private val serviceHolder: ServiceHolder by inject(ServiceHolder::class.java)
+    private val shutdownScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @Volatile private var userActivatedShutdown = false
 
     override fun onCreate() {
         serviceHolder.set(this)
@@ -38,9 +46,23 @@ class TunnelService : LifecycleService() {
         return START_STICKY
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
+    fun shutdown() {
+        userActivatedShutdown = true
+        stopSelf()
+    }
+
+    @OptIn(ExperimentalAtomicApi::class)
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         serviceHolder.signalTunnelServiceDestroyed()
+        if(!userActivatedShutdown) {
+            Timber.d("Service being killed by system, clean up tunnels")
+            shutdownScope.launch {
+                // TODO eventually, this should only shut down proxy mode tunnels with future multi tunnel
+                backend.stopAllActiveTunnels()
+            }
+        }
         super.onDestroy()
     }
 
