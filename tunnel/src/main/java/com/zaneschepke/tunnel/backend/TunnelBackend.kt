@@ -140,7 +140,7 @@ class TunnelBackend(
                         mode.config.`interface`.postUp?.let { runScripts(it, tunnel.id) }
 
                     tunnelJobs[result.tunnelId] =
-                        startTunnelJobs(result.handle, tunnel, mode, result.removedPeerEndpoint)
+                        startTunnelJobs(result.handle, tunnel, mode, result.replacedWithNonRoutable)
                 }
                 .onFailure { cleanup(tunnel.id) }
         }
@@ -398,16 +398,16 @@ class TunnelBackend(
         handle: Int,
         tunnel: Tunnel,
         mode: BackendMode,
-        removedPeerEndpoint: Boolean,
+        replacedWithNonRoutable: Boolean,
     ): Job {
         return scope.launch {
             supervisorScope {
-                if (removedPeerEndpoint) {
+                if (replacedWithNonRoutable) {
                     updateTunnelBootstrapState(tunnel.id, BootstrapState.ResolvingDns)
                     startDnsBootstrapJob(handle, tunnel, mode)
                 }
 
-                if (removedPeerEndpoint) {
+                if (replacedWithNonRoutable) {
                     when (val strategy = tunnel.ipStrategy) {
                         Tunnel.IpStrategy.Ipv4Only -> Unit
 

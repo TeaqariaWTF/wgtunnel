@@ -20,6 +20,9 @@ import com.zaneschepke.tunnel.model.KillSwitchConfig
 import com.zaneschepke.tunnel.util.parseDns
 import com.zaneschepke.tunnel.util.parseInetNetwork
 import com.zaneschepke.wireguardautotunnel.parser.Config
+import java.io.IOException
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,9 +32,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
-import java.io.IOException
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.time.Duration.Companion.milliseconds
 
 class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
@@ -72,10 +72,11 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
             hevBridgeJob?.cancel()
             serviceScope.cancel()
             stopHevSocks5Bridge()
-            if(!userActivatedShutdown) {
+            if (!userActivatedShutdown) {
                 Timber.d("Service being killed by system, clean up tunnels")
                 shutdownScope.launch {
-                    // TODO eventually, this should only shut down vpn mode tunnels with future multi tunnel
+                    // TODO eventually, this should only shut down vpn mode tunnels with future
+                    // multi tunnel
                     backend.stopAllActiveTunnels()
                 }
             }
@@ -227,7 +228,6 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                         ?.map { it.trim() }
                         ?.filter { it.isNotEmpty() }
                         ?.forEach { entry ->
-
                             val (address, prefix) = entry.parseInetNetwork()
 
                             if (prefix == 0) {

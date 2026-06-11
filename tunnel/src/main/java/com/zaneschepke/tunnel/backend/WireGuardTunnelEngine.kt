@@ -27,7 +27,7 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
 
         val ifName = WGT_INTERFACE_PREFIX + tunnel.id
 
-        val (config, removedPeerEndpoint) = buildConfig(mode)
+        val (config, replacedWithNonRoutable) = buildConfig(mode)
 
         // guard against static listenPort issues
         val listenPort = config.`interface`.listenPort
@@ -77,7 +77,7 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
             handle = handle,
             interfaceName = ifName,
             mode = mode,
-            removedPeerEndpoint = removedPeerEndpoint,
+            replacedWithNonRoutable = replacedWithNonRoutable,
         )
     }
 
@@ -91,16 +91,21 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
     }
 
     private fun buildConfig(mode: BackendMode): Pair<Config, Boolean> {
-        var removedPeerEndpoint = false
+        var replacedWithNonRoutable = false
         return mode.config.copy(
             peers =
                 mode.config.peers.map { peer ->
-                    if (!peer.isStaticallyConfigured) {
-                        removedPeerEndpoint = true
-                        rewriteDynamicEndpoint(peer)
+                    // keep support for valid configs with no endpoints
+                    // replace domain configs with nonroutable and let the boostrap job update this
+                    // with the real ip later
+                    if (!peer.isStaticallyConfigured && peer.endpoint != null) {
+                        replacedWithNonRoutable = true
+                        val port = peer.endpoint!!.substringAfterLast(":")
+                        peer.copy(endpoint = "$TEST_NET_IP:$port",
+                            persistentKeepalive = 0)
                     } else peer
                 }
-        ) to removedPeerEndpoint
+        ) to replacedWithNonRoutable
     }
 
     private fun buildBridgeProxyConfig(): ProxyConfig {
@@ -147,11 +152,6 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
         } finally {
             TrafficStats.clearThreadStatsTag()
         }
-    }
-
-    // omit peer endpoint while bootstrapping
-    private fun rewriteDynamicEndpoint(peer: PeerSection): PeerSection {
-        return peer.copy(endpoint = null)
     }
 
     override suspend fun stop(handle: Int, mode: BackendMode) {
@@ -270,6 +270,7 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
     }
 
     companion object {
+        const val TEST_NET_IP = "192.0.2.1"
         const val WGT_INTERFACE_PREFIX = "wgtun"
     }
 }

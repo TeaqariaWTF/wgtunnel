@@ -43,11 +43,7 @@ fun PeerStatisticsSection(peer: ActivePeer) {
             color = color,
         )
         peer.endpoint?.let {
-            StatText(
-                stringResource(R.string.endpoint_template, it),
-                style = style,
-                color = color
-            )
+            StatText(stringResource(R.string.endpoint_template, it), style = style, color = color)
         }
     }
 }

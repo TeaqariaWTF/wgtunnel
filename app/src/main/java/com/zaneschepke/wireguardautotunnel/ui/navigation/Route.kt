@@ -42,7 +42,9 @@ sealed class Route : NavKey {
 
     @Keep @Serializable data object Display : Route()
 
-    @Keep @Serializable data object Tunnels : Route(), SecureRoute {
+    @Keep
+    @Serializable
+    data object Tunnels : Route(), SecureRoute {
         override val requiresProtection: Boolean
             get() = true
     }
