@@ -88,7 +88,9 @@ class SplitTunnelViewModel(
             editableInterface.copy(includedApplications = included, excludedApplications = excluded)
         val updatedProxyConfig = editableConfig.copy(`interface` = updatedInterface)
         val updatedConfig = updatedProxyConfig.buildConfig()
-        tunnelRepository.save(tunnel.copy(quickConfig = updatedConfig.asQuickString()))
+        tunnelRepository.save(
+            tunnel.copy(quickConfig = updatedConfig.withName(tunnel.name).asQuickString())
+        )
         postSideEffect(
             GlobalSideEffect.Snackbar(StringValue.StringResource(R.string.config_changes_saved))
         )
