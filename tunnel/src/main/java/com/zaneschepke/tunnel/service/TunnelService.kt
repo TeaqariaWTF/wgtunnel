@@ -55,7 +55,7 @@ class TunnelService : LifecycleService() {
     @OptIn(ExperimentalAtomicApi::class)
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        serviceHolder.signalTunnelServiceDestroyed()
+        serviceHolder.clearTunnelService()
         if (!userActivatedShutdown) {
             Timber.d("Service being killed by system, clean up tunnels")
             shutdownScope.launch {

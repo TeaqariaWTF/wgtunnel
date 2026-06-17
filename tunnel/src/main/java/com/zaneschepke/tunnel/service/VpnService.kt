@@ -8,7 +8,6 @@ import android.system.OsConstants
 import androidx.core.app.ServiceCompat
 import com.zaneschepke.hevtunnel.HevTunnelConfig
 import com.zaneschepke.hevtunnel.TProxyService
-import com.zaneschepke.tunnel.ProxyBackend
 import com.zaneschepke.tunnel.Tunnel
 import com.zaneschepke.tunnel.backend.Backend
 import com.zaneschepke.tunnel.backend.KillSwitch
@@ -50,7 +49,6 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
     override fun onCreate() {
         serviceHolder.set(this)
-        ProxyBackend.setSocketProtector(this)
         launchForegroundNotification()
         super.onCreate()
     }
@@ -68,7 +66,7 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
     override fun onDestroy() {
         Timber.d("VpnService destroyed")
         try {
-            ProxyBackend.setSocketProtector(null)
+            serviceHolder.clearVpnService()
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             disableKillSwitch()
             hevBridgeJob?.cancel()
@@ -83,7 +81,6 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                 }
             }
         } finally {
-            serviceHolder.signalVpnServiceDestroyed()
             super.onDestroy()
         }
     }

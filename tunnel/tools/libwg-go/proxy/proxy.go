@@ -8,7 +8,6 @@ import (
 	"context"
 	"net"
 	"sync"
-	"syscall"
 
 	"github.com/amnezia-vpn/amneziawg-go/conn"
 	"github.com/amnezia-vpn/amneziawg-go/device"
@@ -17,8 +16,6 @@ import (
 	wireproxyawg "github.com/artem-russkikh/wireproxy-awg"
 	"github.com/wgtunnel/android/shared"
 )
-
-import "C"
 
 var (
 	cancelFuncs          map[int32]context.CancelFunc
@@ -76,7 +73,7 @@ func awgStartProxy(interfaceName string, config string, uapiPath string, bypass 
 
 	var bind conn.Bind
 	if bypass == 1 {
-		bind = conn.NewStdNetBindWithControl(protectControlFunc)
+		bind = conn.NewStdNetBindWithControl(shared.ProtectControlFunc)
 	} else {
 		bind = conn.NewStdNetBind()
 	}
@@ -226,23 +223,6 @@ func awgGetProxyConfig(tunnelHandle int32) *C.char {
 		return nil
 	}
 	return C.CString(settings)
-}
-
-// control hook to bypass sockets
-func protectControlFunc(network, address string, c syscall.RawConn) error {
-	var opErr error
-	err := c.Control(func(fd uintptr) {
-		if C.bypass_socket(C.int(fd)) == 0 {
-			opErr = syscall.EACCES
-			shared.LogError(tag, "Failed to protect socket FD: %d", fd)
-		} else {
-			shared.LogDebug(tag, "Protected socket FD: %d", fd)
-		}
-	})
-	if err != nil {
-		return err
-	}
-	return opErr
 }
 
 //export awgTurnProxyTunnelOff

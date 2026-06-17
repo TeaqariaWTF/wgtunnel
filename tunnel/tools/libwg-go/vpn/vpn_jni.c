@@ -11,8 +11,6 @@
 struct go_string { const char *str; long n; };
 extern int awgTurnOn(struct go_string ifname, int tun_fd, struct go_string settings, struct go_string uapipath);
 extern void awgTurnOff(int handle);
-extern int awgGetSocketV4(int handle);
-extern int awgGetSocketV6(int handle);
 extern char *awgGetConfig(int handle);
 extern char *awgVersion();
 extern int awgUpdateTunnelPeers(int handle, struct go_string settings);
@@ -44,16 +42,6 @@ return ret;
 JNIEXPORT void JNICALL  Java_com_zaneschepke_tunnel_VpnBackend_awgTurnOff(JNIEnv *env, jclass c, jint handle)
 {
 awgTurnOff(handle);
-}
-
-JNIEXPORT jint JNICALL Java_com_zaneschepke_tunnel_VpnBackend_awgGetSocketV4(JNIEnv *env, jclass c, jint handle)
-{
-return awgGetSocketV4(handle);
-}
-
-JNIEXPORT jint JNICALL  Java_com_zaneschepke_tunnel_VpnBackend_awgGetSocketV6(JNIEnv *env, jclass c, jint handle)
-{
-return awgGetSocketV6(handle);
 }
 
 JNIEXPORT jstring JNICALL  Java_com_zaneschepke_tunnel_VpnBackend_awgGetConfig(JNIEnv *env, jclass c, jint handle)

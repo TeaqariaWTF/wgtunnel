@@ -176,8 +176,7 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
     }
 
     private suspend fun startVpnTunnel(tunnel: Tunnel, ifName: String, config: Config): Int {
-
-        val service = serviceHolder.getVpnService()
+        val service = ensureVpnProtectorRegistered()
 
         val fd =
             service.createTunInterface(tunnel, config)?.detachFd()
@@ -185,14 +184,9 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
 
         val handle =
             VpnBackend.awgTurnOn(ifName, fd, config.asQuickString(), serviceHolder.uapiPath)
-
         if (handle < 0) {
             throw BackendException.InternalError("Internal native error with code: $handle")
         }
-
-        service.protect(VpnBackend.awgGetSocketV4(handle))
-        service.protect(VpnBackend.awgGetSocketV6(handle))
-
         return handle
     }
 
@@ -224,12 +218,19 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
         proxyConfig: ProxyConfig,
         withBridge: Boolean,
     ): Int {
-
         val quickConfig = buildProxiedQuickString(config, proxyConfig)
 
         if (!withBridge) {
             serviceHolder.getTunnelService()
         }
+
+        // Get VpnService and ensure protector is registered
+        val vpnService =
+            if (withBridge) {
+                ensureVpnProtectorRegistered()
+            } else {
+                null
+            }
 
         val handle =
             ProxyBackend.awgStartProxy(
@@ -238,12 +239,12 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
                 serviceHolder.uapiPath,
                 if (withBridge) 1 else 0,
             )
-
         if (handle < 0) {
             throw BackendException.InternalError("Internal native error")
         }
 
-        if (withBridge) {
+        // Start HEV bridge after the proxy tunnel is up
+        if (withBridge && vpnService != null) {
             val port =
                 proxyConfig.socks5?.port
                     ?: throw BackendException.InternalError(
@@ -254,10 +255,21 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
                     ?: throw BackendException.InternalError(
                         "Bridge pass not set for kill switch proxy config"
                     )
-            serviceHolder.getVpnService().startHevSocks5Bridge(port, pass)
+
+            vpnService.startHevSocks5Bridge(port, pass)
         }
 
         return handle
+    }
+
+    /**
+     * Gets the VpnService and starts if needed while ensuring the protector is registered. This is
+     * needed before any native call that uses NewStdNetBindWithControl.
+     */
+    private suspend fun ensureVpnProtectorRegistered(): VpnService {
+        val service = serviceHolder.getVpnService()
+        ProxyBackend.setSocketProtector(service)
+        return service
     }
 
     private fun buildProxiedQuickString(config: Config, proxyConfig: ProxyConfig): String {

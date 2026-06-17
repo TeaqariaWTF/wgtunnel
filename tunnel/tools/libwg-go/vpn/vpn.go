@@ -78,7 +78,7 @@ func awgTurnOn(interfaceName string, tunFd int32, settings string, uapiPath stri
 		go C.awgNotifyStatus(C.int32_t(handle), C.int32_t(code))
 	}
 
-	tunDevice := device.NewDevice(tunnel, conn.NewStdNetBind(), shared.NewLogger("Tun/"+interfaceName), statusCB)
+	tunDevice := device.NewDevice(tunnel, conn.NewStdNetBindWithControl(shared.ProtectControlFunc), shared.NewLogger("Tun/"+interfaceName), statusCB)
 	tunDevice.DisableSomeRoamingForBrokenMobileSemantics()
 
 	ipcRequest, err := wireproxyawg.CreateIPCRequest(conf.Device, false)
@@ -211,54 +211,6 @@ func awgTurnOff(tunnelHandle int32) {
 		C.int32_t(tunnelHandle),
 		C.int32_t(shared.StatusStop),
 	)
-}
-
-//export awgGetSocketV4
-func awgGetSocketV4(tunnelHandle int32) int32 {
-
-	tunnelMu.RLock()
-	handle, ok := tunnelHandles[tunnelHandle]
-	tunnelMu.RUnlock()
-
-	if !ok {
-		return -1
-	}
-
-	bind, _ := handle.device.Bind().(conn.PeekLookAtSocketFd)
-	if bind == nil {
-		return -1
-	}
-
-	fd, err := bind.PeekLookAtSocketFd4()
-	if err != nil {
-		return -1
-	}
-
-	return int32(fd)
-}
-
-//export awgGetSocketV6
-func awgGetSocketV6(tunnelHandle int32) int32 {
-
-	tunnelMu.RLock()
-	handle, ok := tunnelHandles[tunnelHandle]
-	tunnelMu.RUnlock()
-
-	if !ok {
-		return -1
-	}
-
-	bind, _ := handle.device.Bind().(conn.PeekLookAtSocketFd)
-	if bind == nil {
-		return -1
-	}
-
-	fd, err := bind.PeekLookAtSocketFd6()
-	if err != nil {
-		return -1
-	}
-
-	return int32(fd)
 }
 
 //export awgGetConfig
