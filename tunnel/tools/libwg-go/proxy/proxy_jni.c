@@ -143,13 +143,14 @@ int bypass_socket(int fd) {
 
     jint rs = (*g_jvm)->GetEnv(g_jvm, (JNIEnv **)&env, JNI_VERSION_1_6);
 
+    // Short retry for AttachCurrentThreadAsDaemon
     if (rs == JNI_EDETACHED) {
         int retries = 3;
         while (retries-- > 0) {
             if ((*g_jvm)->AttachCurrentThreadAsDaemon(g_jvm, (JNIEnv **)&env, NULL) == JNI_OK) {
                 break;
             }
-            usleep(5000); // 5ms backoff
+            usleep(5000);
         }
         if (env == NULL) {
             LOGE("bypass_socket: AttachCurrentThreadAsDaemon failed after retries (fd=%d)", fd);
@@ -164,40 +165,57 @@ int bypass_socket(int fd) {
         LOGE("bypass_socket: env is NULL after attach/GetEnv (fd=%d)", fd);
         return 0;
     }
-    
-    pthread_mutex_lock(&g_protector_mutex);
-    if (g_protector == NULL || g_protectMethod == NULL) {
+
+    // Short retry when protector is not yet visible
+    const int maxRetries = 4;
+    const useconds_t backoff = 8000;
+
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+        pthread_mutex_lock(&g_protector_mutex);
+
+        if (g_protector != NULL && g_protectMethod != NULL) {
+            jobject local = (*env)->NewLocalRef(env, g_protector);
+            jmethodID method = g_protectMethod;
+            pthread_mutex_unlock(&g_protector_mutex);
+
+            if (local == NULL) {
+                LOGE("bypass_socket: NewLocalRef failed (fd=%d)", fd);
+                return 0;
+            }
+
+            if ((*env)->ExceptionCheck(env)) (*env)->ExceptionClear(env);
+
+            int result = (*env)->CallIntMethod(env, local, method, fd);
+
+            if ((*env)->ExceptionCheck(env)) {
+                LOGE("bypass_socket: Exception from protector.bypass() (fd=%d)", fd);
+                (*env)->ExceptionDescribe(env);
+                (*env)->ExceptionClear(env);
+                result = 0;
+            }
+
+            (*env)->DeleteLocalRef(env, local);
+
+            if (attempt > 0) {
+                LOGD("bypass_socket: succeeded after %d retries (fd=%d)", attempt, fd);
+            }
+            LOGD("bypass_socket: fd=%d result=%d", fd, result);
+            return result;
+        }
+
         pthread_mutex_unlock(&g_protector_mutex);
-        LOGE("bypass_socket: protector NOT SET yet (fd=%d) — returning 0", fd);
-        return 0;
+
+        if (attempt == 0) {
+            LOGD("bypass_socket: protector not visible yet, retrying (fd=%d)", fd);
+        }
+
+        if (attempt < maxRetries - 1) {
+            usleep(backoff);
+        }
     }
 
-    jobject local_protector = (*env)->NewLocalRef(env, g_protector);
-    jmethodID local_method = g_protectMethod;
-    pthread_mutex_unlock(&g_protector_mutex);
-
-    if (local_protector == NULL) {
-        LOGE("bypass_socket: NewLocalRef failed (fd=%d)", fd);
-        return 0;
-    }
-
-    if ((*env)->ExceptionCheck(env)) {
-        (*env)->ExceptionClear(env);
-    }
-
-    int result = (*env)->CallIntMethod(env, local_protector, local_method, fd);
-
-    if ((*env)->ExceptionCheck(env)) {
-        LOGE("bypass_socket: Exception from protector.bypass() (fd=%d)", fd);
-        (*env)->ExceptionDescribe(env);
-        (*env)->ExceptionClear(env);
-        result = 0;
-    }
-
-    (*env)->DeleteLocalRef(env, local_protector);
-
-    LOGD("bypass_socket: fd=%d result=%d", fd, result);
-    return result;
+    LOGE("bypass_socket: protector still not ready after retries (fd=%d)", fd);
+    return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_zaneschepke_tunnel_ProxyBackend_awgUpdateProxyTunnelPeers(JNIEnv *env, jclass c, jint handle, jstring settings)
