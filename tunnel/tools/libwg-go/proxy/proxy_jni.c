@@ -131,49 +131,72 @@ JNIEXPORT void JNICALL Java_com_zaneschepke_tunnel_ProxyBackend_awgSetSocketProt
 
 int bypass_socket(int fd) {
     if (fd < 0) {
-        LOGE("Invalid FD passed to bypass_socket: %d", fd);
+        LOGE("bypass_socket: Invalid FD %d", fd);
         return 0;
     }
+
     JNIEnv *env = NULL;
     if (g_jvm == NULL) {
-        LOGE("g_jvm is NULL in bypass_socket");
+        LOGE("bypass_socket: g_jvm is NULL");
         return 0;
     }
+
     jint rs = (*g_jvm)->GetEnv(g_jvm, (JNIEnv **)&env, JNI_VERSION_1_6);
+
     if (rs == JNI_EDETACHED) {
-        if ((*g_jvm)->AttachCurrentThreadAsDaemon(g_jvm, (JNIEnv **)&env, NULL) != JNI_OK) {
-            LOGE("AttachCurrentThreadAsDaemon failed in bypass_socket");
+        int retries = 3;
+        while (retries-- > 0) {
+            if ((*g_jvm)->AttachCurrentThreadAsDaemon(g_jvm, (JNIEnv **)&env, NULL) == JNI_OK) {
+                break;
+            }
+            usleep(5000); // 5ms backoff
+        }
+        if (env == NULL) {
+            LOGE("bypass_socket: AttachCurrentThreadAsDaemon failed after retries (fd=%d)", fd);
             return 0;
         }
     } else if (rs != JNI_OK) {
-        LOGE("GetEnv failed with code %d in bypass_socket", rs);
+        LOGE("bypass_socket: GetEnv failed with code %d (fd=%d)", rs, fd);
         return 0;
     }
+
     if (env == NULL) {
+        LOGE("bypass_socket: env is NULL after attach/GetEnv (fd=%d)", fd);
         return 0;
     }
+    
     pthread_mutex_lock(&g_protector_mutex);
     if (g_protector == NULL || g_protectMethod == NULL) {
         pthread_mutex_unlock(&g_protector_mutex);
+        LOGE("bypass_socket: protector NOT SET yet (fd=%d) — returning 0", fd);
         return 0;
     }
+
     jobject local_protector = (*env)->NewLocalRef(env, g_protector);
     jmethodID local_method = g_protectMethod;
     pthread_mutex_unlock(&g_protector_mutex);
+
     if (local_protector == NULL) {
+        LOGE("bypass_socket: NewLocalRef failed (fd=%d)", fd);
         return 0;
     }
+
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
     }
+
     int result = (*env)->CallIntMethod(env, local_protector, local_method, fd);
+
     if ((*env)->ExceptionCheck(env)) {
-        LOGE("Exception thrown from protector.bypass()");
+        LOGE("bypass_socket: Exception from protector.bypass() (fd=%d)", fd);
         (*env)->ExceptionDescribe(env);
         (*env)->ExceptionClear(env);
         result = 0;
     }
+
     (*env)->DeleteLocalRef(env, local_protector);
+
+    LOGD("bypass_socket: fd=%d result=%d", fd, result);
     return result;
 }
 
