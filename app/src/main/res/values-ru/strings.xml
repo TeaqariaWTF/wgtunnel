@@ -155,6 +155,8 @@
     <string name="delete">Удалить</string>
     <string name="export_failed">Экспорт не выполнен</string>
     <string name="error_download_failed">Невозможно скачать конфигурацию</string>
+    <string name="wg_url_confirm_message">Добавить туннели от %1$s? Никогда не подключайтесь к неизвестному VPN!</string>
+    <string name="nothing_here_yet">Здесь пока ничего нет!</string>
     <string name="select_all">Выбрать все</string>
     <string name="export_success">Экспорт успешно выполнен</string>
     <string name="check_for_update">Проверить обновление</string>

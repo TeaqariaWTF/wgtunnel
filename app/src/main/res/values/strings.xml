@@ -153,6 +153,7 @@
     <string name="add_from_url">Add from URL</string>
     <string name="enter_config_url">Enter config URL</string>
     <string name="error_download_failed">Failed to download config</string>
+    <string name="wg_url_confirm_message">Are you sure you want to add tunnels from %1$s? Never connect to an untrusted VPN!</string>
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="select">Select</string>
@@ -535,4 +536,5 @@
     <string name="hide_password">Hide password</string>
     <string name="restore_failed_wrong_password">Restore failed. Wrong password</string>
     <string name="restore_failed_invalid_file">Restore failed. Select a valid backup file (.sqlite3 or .sqlite3.aes)</string>
+    <string name="error_invalid_config_url">This link returned an invalid config file. Make sure you are using a direct download link</string>
 </resources>
