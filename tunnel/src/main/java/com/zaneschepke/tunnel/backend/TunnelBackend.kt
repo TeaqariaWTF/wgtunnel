@@ -23,7 +23,6 @@ import com.zaneschepke.tunnel.state.KillSwitchState
 import com.zaneschepke.tunnel.util.RootShell
 import com.zaneschepke.tunnel.util.RootShellException
 import com.zaneschepke.tunnel.util.buildResolvedPeers
-import com.zaneschepke.tunnel.util.isLastTunnelOfServiceType
 import com.zaneschepke.tunnel.util.toHostMap
 import com.zaneschepke.wireguardautotunnel.parser.ActiveConfig
 import java.lang.ref.WeakReference
@@ -92,8 +91,6 @@ class TunnelBackend(
         NETWORK_CHANGE_RESET,
     }
 
-    private var dnsConfigJob: Job? = null
-
     private val statusCallback = StatusCallback { handle, code ->
         val state = Tunnel.State.fromNative(code) ?: return@StatusCallback
         val tunnelId = byHandle[handle] ?: return@StatusCallback
@@ -107,7 +104,7 @@ class TunnelBackend(
         tunnelMutex.withLock {
             runCatching {
                     if (_status.value.activeTunnels.containsKey(tunnel.id)) {
-                        Timber.d("Tunnel ${tunnel.id} already running — ignoring start")
+                        Timber.w("Tunnel ${tunnel.id} already running")
                         return@runCatching
                     }
 
@@ -130,74 +127,68 @@ class TunnelBackend(
                     if (scriptsEnabled)
                         mode.config.`interface`.preUp?.let { runScripts(it, tunnel.id) }
 
-                    val fd = setupServiceForMode(tunnel, mode)
+                    setupServiceForMode(tunnel, mode)
 
                     if (hasDynamicEndpoints(mode)) {
-                        pendingResolutionJobs[tunnel.id] = startTunnelBootstrapJob(tunnel, mode, fd)
+                        pendingResolutionJobs[tunnel.id] = startTunnelBootstrapJob(tunnel, mode)
                     } else {
-                        val result = engine.start(tunnel, mode, fd)
+                        val result = engine.start(tunnel, mode)
                         onEngineStartResult(tunnel.id, result)
 
                         if (scriptsEnabled) {
                             mode.config.`interface`.postUp?.let { runScripts(it, tunnel.id) }
                         }
-
                         tunnelJobs[tunnel.id] = startTunnelJobs(result.handle, tunnel, mode)
                     }
                 }
                 .onFailure { cleanup(tunnel.id) }
         }
 
-    private fun startTunnelBootstrapJob(tunnel: Tunnel, mode: BackendMode, fd: Int?) =
-        scope.launch {
-            try {
-                updateTunnelBootstrapState(tunnel.id, BootstrapState.ResolvingDns)
+    private fun startTunnelBootstrapJob(tunnel: Tunnel, mode: BackendMode) = scope.launch {
+        try {
+            updateTunnelBootstrapState(tunnel.id, BootstrapState.ResolvingDns)
 
-                val resultMap = endpointResolver.resolvePeers(mode)
-                ensureActive()
+            val resultMap = endpointResolver.resolvePeers(mode)
+            ensureActive()
 
-                val networkHasIpv6 = stableNetworkEngine.stableState.value?.state?.hasIpv6 ?: false
-                val hostMap =
-                    resultMap.toHostMap(
-                        preferIpv6 =
-                            tunnel.ipStrategy is Tunnel.IpStrategy.PreferIpv6 && networkHasIpv6
-                    )
-                val resolvedPeers = mode.config.buildResolvedPeers(hostMap)
+            val networkHasIpv6 = stableNetworkEngine.stableState.value?.state?.hasIpv6 ?: false
+            val hostMap =
+                resultMap.toHostMap(
+                    preferIpv6 = tunnel.ipStrategy is Tunnel.IpStrategy.PreferIpv6 && networkHasIpv6
+                )
+            val resolvedPeers = mode.config.buildResolvedPeers(hostMap)
 
-                updateTunnelBootstrapState(tunnel.id, BootstrapState.Complete)
+            updateTunnelBootstrapState(tunnel.id, BootstrapState.Complete)
 
-                val resolvedConfig = mode.config.copy(peers = resolvedPeers)
-                val updatedMode =
-                    when (mode) {
-                        is BackendMode.Vpn -> mode.copy(config = resolvedConfig)
-                        is BackendMode.Proxy.Standard -> mode.copy(config = resolvedConfig)
-                        is BackendMode.Proxy.KillSwitchPrimary -> mode.copy(config = resolvedConfig)
-                    }
-
-                val result = engine.start(tunnel, updatedMode, fd)
-                onEngineStartResult(tunnel.id, result)
-
-                val scriptsEnabled = tunnel.scriptsEnabled
-                if (scriptsEnabled) {
-                    mode.config.`interface`.postUp?.let { runScripts(it, tunnel.id) }
+            val resolvedConfig = mode.config.copy(peers = resolvedPeers)
+            val updatedMode =
+                when (mode) {
+                    is BackendMode.Vpn -> mode.copy(config = resolvedConfig)
+                    is BackendMode.Proxy.Standard -> mode.copy(config = resolvedConfig)
+                    is BackendMode.Proxy.KillSwitchPrimary -> mode.copy(config = resolvedConfig)
                 }
 
-                tunnelJobs[tunnel.id] = startTunnelJobs(result.handle, tunnel, updatedMode)
-            } catch (t: Throwable) {
-                if (t is kotlinx.coroutines.CancellationException) {
-                    Timber.d("Bootstrap job cancelled for tunnel ${tunnel.id}")
-                    throw t
-                } else {
-                    Timber.e(t, "Tunnel bootstrap failed for ${tunnel.id}")
-                }
-                cleanup(tunnel.id)
-            } finally {
-                pendingResolutionJobs.remove(tunnel.id)
+            val result = engine.start(tunnel, updatedMode)
+            onEngineStartResult(tunnel.id, result)
+
+            val scriptsEnabled = tunnel.scriptsEnabled
+            if (scriptsEnabled) {
+                mode.config.`interface`.postUp?.let { runScripts(it, tunnel.id) }
             }
-        }
 
-    private suspend fun setupServiceForMode(tunnel: Tunnel, mode: BackendMode): Int? {
-        var fd: Int? = null
+            tunnelJobs[tunnel.id] = startTunnelJobs(result.handle, tunnel, updatedMode)
+        } catch (t: Throwable) {
+            if (t is kotlinx.coroutines.CancellationException) {
+                Timber.d("Bootstrap job cancelled for tunnel ${tunnel.id}")
+            } else {
+                Timber.e(t, "Tunnel bootstrap failed for ${tunnel.id}")
+                cleanup(tunnel.id)
+            }
+            if (t is kotlinx.coroutines.CancellationException) throw t
+        }
+    }
+
+    private suspend fun setupServiceForMode(tunnel: Tunnel, mode: BackendMode) {
         when (mode) {
             is BackendMode.Proxy.KillSwitchPrimary -> {
                 serviceHolder.ensureVpnProtectorRegistered()
@@ -207,10 +198,9 @@ class TunnelBackend(
             }
             is BackendMode.Vpn -> {
                 val service = serviceHolder.ensureVpnProtectorRegistered()
-                fd = service.createTunInterface(tunnel, mode.config)?.detachFd()
+                service.createTunInterface(tunnel, mode.config)
             }
         }
-        return fd
     }
 
     private fun onEngineStartResult(tunnelId: Int, result: EngineStartResult) {
@@ -221,13 +211,27 @@ class TunnelBackend(
         byTunnelId[tunnelId] = result.handle
     }
 
-    private fun cleanup(tunnelId: Int) {
+    private suspend fun cleanup(tunnelId: Int) {
         pendingResolutionJobs.remove(tunnelId)?.cancel()
         tunnelJobs.remove(tunnelId)?.cancel()
+
+        val activeTunnels = _status.value.activeTunnels
+
+        val vpnTypeCount = activeTunnels.values.count { it.mode is BackendMode.Vpn }
+
+        val proxyTypeCount = activeTunnels.values.count { it.mode is BackendMode.Proxy.Standard }
+
         removeActiveTunnel(tunnelId)
         byTunnelId[tunnelId]?.let { byHandle.remove(it) }
         byTunnelId.remove(tunnelId)
         peerUpdateMutexes.remove(tunnelId)
+
+        if (vpnTypeCount == 1) {
+            serviceHolder.stopVpnService()
+        }
+        if (proxyTypeCount == 1) {
+            serviceHolder.stopTunnelService()
+        }
     }
 
     private suspend fun runScripts(commands: List<String>, tunnelId: Int) {
@@ -252,23 +256,14 @@ class TunnelBackend(
     override suspend fun stop(id: Int): Result<Unit> = tunnelMutex.withLock {
         runCatching {
             val activeTun = _status.value.activeTunnels[id] ?: return@runCatching
-            val mode = activeTun.mode ?: return@runCatching
             updateTunnelTransportState(id, Tunnel.State.Stopping)
-
-            val isLast = _status.value.activeTunnels.size == 1
-            val isLastOfServiceType = _status.value.isLastTunnelOfServiceType(id)
 
             try {
                 stopTunnelInternal(id, activeTun)
             } finally {
                 applicationProvider.refreshTile(serviceHolder.context)
-                if (isLast) VpnBackend.setStatusCallback(null)
-                if (isLastOfServiceType) {
-                    when (mode) {
-                        is BackendMode.Proxy.KillSwitchPrimary,
-                        is BackendMode.Vpn -> serviceHolder.stopVpnService()
-                        is BackendMode.Proxy.Standard -> serviceHolder.stopTunnelService()
-                    }
+                if (_status.value.activeTunnels.isEmpty()) {
+                    VpnBackend.setStatusCallback(null)
                 }
             }
         }
@@ -276,8 +271,6 @@ class TunnelBackend(
 
     private suspend fun stopTunnelInternal(tunnelId: Int, activeTunnel: ActiveTunnel) {
         updateTunnelTransportState(tunnelId, Tunnel.State.Stopping)
-
-        pendingResolutionJobs.remove(tunnelId)?.cancel()
 
         val handle = byTunnelId[tunnelId]
 

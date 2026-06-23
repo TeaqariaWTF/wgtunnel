@@ -76,16 +76,22 @@ internal class ServiceHolder(val context: Context) {
 
     suspend fun stopVpnService() {
         val service = _vpnService.value ?: return
-        clearVpnService()
-        service.shutdown()
-        withTimeoutOrNull(1_000L.milliseconds) { vpnServiceFlow.first { it == null } }
+        try {
+            service.shutdown()
+            withTimeoutOrNull(1_500L.milliseconds) { vpnServiceFlow.first { it == null } }
+        } finally {
+            clearVpnService()
+        }
     }
 
     suspend fun stopTunnelService() {
         val service = _tunnelService.value ?: return
-        clearTunnelService()
-        service.shutdown()
-        withTimeoutOrNull(1_000L.milliseconds) { tunnelServiceFlow.first { it == null } }
+        try {
+            service.shutdown()
+            withTimeoutOrNull(1_500L.milliseconds) { tunnelServiceFlow.first { it == null } }
+        } finally {
+            clearVpnService()
+        }
     }
 
     /**

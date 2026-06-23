@@ -17,7 +17,7 @@ import java.util.UUID
 
 internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) : TunnelEngine {
 
-    override suspend fun start(tunnel: Tunnel, mode: BackendMode, fd: Int?): EngineStartResult {
+    override suspend fun start(tunnel: Tunnel, mode: BackendMode): EngineStartResult {
 
         val ifName = WGT_INTERFACE_PREFIX + tunnel.id
 
@@ -56,7 +56,8 @@ internal class WireGuardTunnelEngine(private val serviceHolder: ServiceHolder) :
                     startProxyTunnel(ifName, mode.config, proxyConfig, false)
                 }
                 is BackendMode.Vpn -> {
-                    startVpnTunnel(ifName, mode.config, fd)
+                    val service = serviceHolder.getVpnService()
+                    startVpnTunnel(ifName, mode.config, service.detachVpnTunnelFd())
                 }
             }
 

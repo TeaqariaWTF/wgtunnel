@@ -8,7 +8,7 @@ import com.zaneschepke.wireguardautotunnel.parser.PeerSection
 
 internal interface TunnelEngine {
 
-    suspend fun start(tunnel: Tunnel, mode: BackendMode, fd: Int?): EngineStartResult
+    suspend fun start(tunnel: Tunnel, mode: BackendMode): EngineStartResult
 
     suspend fun stop(handle: Int, mode: BackendMode)
 
