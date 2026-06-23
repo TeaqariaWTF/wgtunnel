@@ -25,7 +25,6 @@ import com.zaneschepke.tunnel.util.RootShellException
 import com.zaneschepke.tunnel.util.buildResolvedPeers
 import com.zaneschepke.tunnel.util.toHostMap
 import com.zaneschepke.wireguardautotunnel.parser.ActiveConfig
-import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -250,7 +249,7 @@ class TunnelBackend(
     }
 
     override fun setAlwaysOnCallback(alwaysOnCallback: VpnService.AlwaysOnCallback) {
-        ServiceHolder.alwaysOnCallback = WeakReference(alwaysOnCallback)
+        ServiceHolder.alwaysOnCallback = alwaysOnCallback
     }
 
     override suspend fun stop(id: Int): Result<Unit> = tunnelMutex.withLock {

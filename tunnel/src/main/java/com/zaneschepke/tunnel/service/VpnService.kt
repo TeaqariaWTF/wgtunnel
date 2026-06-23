@@ -1,5 +1,6 @@
 package com.zaneschepke.tunnel.service
 
+import android.content.Context
 import android.content.Intent
 import android.net.TrafficStats
 import android.os.Build
@@ -81,15 +82,28 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
 
         bootKeepaliveService()
 
-        // Service restarted by system or Always-on VPN started
-        if (
-            intent == null ||
-                intent.component == null ||
-                (intent.component!!.packageName != packageName)
-        ) {
-            Timber.d("VpnService started by system (Always-On trigger)")
-            alwaysOnCallback?.get()?.alwaysOnTriggered()
+        // system recovery restart
+        if (intent == null) {
+            return START_STICKY
         }
+
+        val isUserLaunch = intent.getBooleanExtra(getUserLaunchExtraKey(this), false)
+
+        val platformSaysAlwaysOn =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isAlwaysOn
+            } else {
+                false
+            }
+
+        val isAlwaysOnTrigger =
+            !isUserLaunch && (intent.action == SERVICE_INTERFACE || platformSaysAlwaysOn)
+
+        if (isAlwaysOnTrigger) {
+            Timber.d("VpnService started by system (Always-On trigger)")
+            alwaysOnCallback?.alwaysOnTriggered()
+        }
+
         return START_STICKY
     }
 
@@ -330,6 +344,21 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
     }
 
     companion object {
+
+        private fun getUserLaunchExtraKey(context: Context): String {
+            return "${context.packageName}.EXTRA_IS_USER_LAUNCH"
+        }
+
+        @JvmStatic
+        fun start(context: Context, serviceClass: Class<out VpnService>) {
+            val intent =
+                Intent(context, serviceClass).apply {
+                    action = SERVICE_INTERFACE
+                    putExtra(getUserLaunchExtraKey(context), true)
+                }
+            context.startService(intent)
+        }
+
         private const val LOCKDOWN_SESSION_NAME = "Lockdown"
         private const val LOCALHOST = "127.0.0.1"
         private const val IPV4_INTERFACE_ADDRESS = "10.0.0.1"

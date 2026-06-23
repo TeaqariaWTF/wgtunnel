@@ -51,6 +51,13 @@ class WireGuardAutoTunnel : Application(), KoinComponent {
 
     private val backend: Backend by inject()
 
+    private val alwaysOnCallback =
+        object : VpnService.AlwaysOnCallback {
+            override fun alwaysOnTriggered() {
+                applicationScope.launch { tunnelCoordinator.startDefault() }
+            }
+        }
+
     @OptIn(KoinViewModelScopeApi::class)
     override fun onCreate() {
         super.onCreate()
@@ -86,13 +93,7 @@ class WireGuardAutoTunnel : Application(), KoinComponent {
             Timber.plant(ReleaseTree())
         }
 
-        backend.setAlwaysOnCallback(
-            object : VpnService.AlwaysOnCallback {
-                override fun alwaysOnTriggered() {
-                    applicationScope.launch { tunnelCoordinator.startDefault() }
-                }
-            }
-        )
+        backend.setAlwaysOnCallback(alwaysOnCallback)
 
         val dispatcher = get<TunnelEventDispatcher>()
         val coordinator = get<TunnelCoordinator>()

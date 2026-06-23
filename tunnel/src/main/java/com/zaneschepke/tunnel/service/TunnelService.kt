@@ -51,7 +51,7 @@ class TunnelService : LifecycleService() {
                 (intent.component!!.packageName != packageName)
         ) {
             Timber.d("TunnelService started by system")
-            alwaysOnCallback?.get()?.alwaysOnTriggered()
+            alwaysOnCallback?.alwaysOnTriggered()
         }
 
         return START_STICKY

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import com.zaneschepke.tunnel.ProxyBackend
 import com.zaneschepke.tunnel.util.BackendException
-import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -90,7 +89,7 @@ internal class ServiceHolder(val context: Context) {
             service.shutdown()
             withTimeoutOrNull(1_500L.milliseconds) { tunnelServiceFlow.first { it == null } }
         } finally {
-            clearVpnService()
+            clearTunnelService()
         }
     }
 
@@ -110,6 +109,6 @@ internal class ServiceHolder(val context: Context) {
         const val SPECIAL_USE_SERVICE_TYPE_ID = 1 shl 30
         const val DEFAULT_MTU = 1280
         // for consumer to set AOVPN callback
-        var alwaysOnCallback: WeakReference<VpnService.AlwaysOnCallback>? = null
+        var alwaysOnCallback: VpnService.AlwaysOnCallback? = null
     }
 }
