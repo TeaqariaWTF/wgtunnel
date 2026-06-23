@@ -102,6 +102,8 @@ class AndroidNetworkMonitor(
     private var ethernetCallback: ConnectivityManager.NetworkCallback? = null
 
     private val airplaneModeState = MutableStateFlow(appContext.isAirplaneModeOn())
+    private val activeCellularNetworks =
+        MutableStateFlow<Map<Network, NetworkCapabilities>>(emptyMap())
     private val airplaneModeFlow: Flow<Boolean> = airplaneModeState.asStateFlow()
 
     // tracking to prevent races that occur when VPN is first activated and to prevent redundant
@@ -317,14 +319,19 @@ class AndroidNetworkMonitor(
     private val cellularFlow: Flow<TransportEvent> = callbackFlow {
         val onAvailable: (Network) -> Unit = { network ->
             Timber.d("Cellular onAvailable: $network")
+            // Defensive cleanup
+            activeCellularNetworks.update { it - network }
         }
         val onLost: (Network) -> Unit = { network ->
             Timber.d("Cellular onLost: $network")
+            activeCellularNetworks.update { it - network }
             trySend(TransportEvent.Lost(network))
         }
         val onCapabilitiesChanged: (Network, NetworkCapabilities) -> Unit = { network, caps ->
-            Timber.d("Cellular onCapabilitiesChanged: $network")
-            trySend(TransportEvent.CapabilitiesChanged(network, caps))
+            if (caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                activeCellularNetworks.update { it + (network to caps) }
+                trySend(TransportEvent.CapabilitiesChanged(network, caps))
+            }
         }
 
         cellularCallback =
@@ -339,13 +346,10 @@ class AndroidNetworkMonitor(
 
         val request =
             NetworkRequest.Builder()
-                .apply { addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR) }
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
                 .build()
-
         connectivityManager?.registerNetworkCallback(request, cellularCallback!!)
-
         trySend(TransportEvent.Unknown)
-
         awaitClose {
             runCatching { connectivityManager?.unregisterNetworkCallback(cellularCallback!!) }
                 .onFailure { Timber.e(it, "Error unregistering cellular network callback") }
@@ -437,6 +441,26 @@ class AndroidNetworkMonitor(
             }
             .also { Timber.d("Current SSID via ${method.name}: $it") }
     }
+
+    private fun hasGoodCellularNetwork(): Boolean =
+        activeCellularNetworks.value.values.any { caps ->
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED))
+        }
+
+    private fun getGoodCellularNetwork(): Network? =
+        activeCellularNetworks.value.entries
+            .firstOrNull { (_, caps) ->
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                        caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED))
+            }
+            ?.key
 
     // default network events don't contain detailed capability information of underlying networks,
     // so we need to track separately
@@ -577,21 +601,13 @@ class AndroidNetworkMonitor(
                         }
 
                         // only count cellular as connected if validated AND not in airplane mode
-                        !isAirplaneOn &&
-                            networkData.cellularEvent is TransportEvent.CapabilitiesChanged &&
-                            networkData.cellularEvent.networkCapabilities?.let { caps ->
-                                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
-                                    caps.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_INTERNET
-                                    ) &&
-                                    caps.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_VALIDATED
-                                    ) &&
-                                    caps.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED
-                                    )
-                            } == true -> {
-                            ActiveNetwork.Cellular(networkData.cellularEvent.network)
+                        !isAirplaneOn && hasGoodCellularNetwork() -> {
+                            val goodNetwork = getGoodCellularNetwork()
+                            if (goodNetwork != null) {
+                                ActiveNetwork.Cellular(goodNetwork)
+                            } else {
+                                ActiveNetwork.Disconnected()
+                            }
                         }
 
                         else -> ActiveNetwork.Disconnected()
