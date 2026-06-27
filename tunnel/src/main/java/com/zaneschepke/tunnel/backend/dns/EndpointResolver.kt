@@ -35,7 +35,12 @@ class EndpointResolver(
 
         while (isActive) {
             val snapshot = stableNetworkEngine.stableState.value?.state
-            val network = snapshot?.activeNetwork?.network ?: continue
+            val network =
+                snapshot?.activeNetwork?.network
+                    ?: run {
+                        delay(100.milliseconds)
+                        continue
+                    }
 
             val dnsMode = forceDnsMode ?: getDnsMode()
             val bypassNeeded = mode is BackendMode.Vpn || isKillSwitchEnabled()

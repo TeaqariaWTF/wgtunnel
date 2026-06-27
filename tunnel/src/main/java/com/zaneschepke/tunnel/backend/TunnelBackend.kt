@@ -40,8 +40,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -176,7 +179,7 @@ class TunnelBackend(
                 mode.config.`interface`.postUp?.let { runScripts(it, tunnel.id) }
             }
 
-            tunnelJobs[tunnel.id] = startTunnelJobs(result.handle, tunnel, updatedMode)
+            tunnelJobs[tunnel.id] = startTunnelJobs(result.handle, tunnel, mode)
         } catch (t: Throwable) {
             if (t is kotlinx.coroutines.CancellationException) {
                 Timber.d("Bootstrap job cancelled for tunnel ${tunnel.id}")
@@ -426,37 +429,25 @@ class TunnelBackend(
     }
 
     private fun CoroutineScope.startDynamicDnsJob(handle: Int, tunnelId: Int) = launch {
-        val controller =
-            DynamicDnsController(
-                failureWindowMs = DDNS_FAILURE_WINDOW,
-                minCheckIntervalMs = DDNS_MIN_CHECK_INTERVAL,
-            )
+        status
+            .mapNotNull { it.activeTunnels[tunnelId]?.transportState }
+            .map { it is Tunnel.State.Up.HandshakeFailure }
+            .distinctUntilChanged()
+            .collectLatest { isFailing ->
+                if (!isFailing) return@collectLatest
 
-        combine(
-                stableNetworkEngine.stableState.filterNotNull(),
-                status.mapNotNull { it.activeTunnels[tunnelId] },
-            ) { stable, activeTunnel ->
-                stable to activeTunnel
-            }
-            .collect { (stable, activeTunnel) ->
-                if (!stable.state.hasInternet()) return@collect
+                delay(DDNS_FAILURE_WINDOW.milliseconds)
 
-                val now = System.currentTimeMillis()
-                val isHandshakeFailure =
-                    activeTunnel.transportState is Tunnel.State.Up.HandshakeFailure
-
-                if (!controller.shouldCheck(now, isHandshakeFailure)) return@collect
-
-                controller.markChecked(now)
-
-                val mode = activeTunnel.mode ?: return@collect
-
-                reconcilePeers(
-                    tunnelId = tunnelId,
-                    handle = handle,
-                    mode = mode,
-                    reason = PeerUpdateReason.DDNS_CHECK,
-                )
+                while (isActive) {
+                    val stable = stableNetworkEngine.stableState.value
+                    if (stable?.state?.hasInternet() == true) {
+                        val tunnel = _status.value.activeTunnels[tunnelId] ?: continue
+                        tunnel.mode?.let { mode ->
+                            reconcilePeers(tunnelId, handle, mode, PeerUpdateReason.DDNS_CHECK)
+                        }
+                    }
+                    delay(DDNS_MIN_CHECK_INTERVAL.milliseconds)
+                }
             }
     }
 
@@ -470,9 +461,7 @@ class TunnelBackend(
         return freshDns
             .mapNotNull { (pubKey, dnsResult) ->
                 val current = currentEndpoints[pubKey] ?: return@mapNotNull null
-                val currentEndpoint = current.endpoint ?: return@mapNotNull null
-
-                val normalizedCurrent = normalizeEndpointForComparison(currentEndpoint)
+                val currentHost = current.host ?: return@mapNotNull null
 
                 val freshAddress =
                     if (preferIpv6 && dnsResult.ipv6.isNotEmpty()) {
@@ -481,25 +470,13 @@ class TunnelBackend(
                         dnsResult.ipv4.firstOrNull() ?: dnsResult.ipv6.firstOrNull()
                     } ?: return@mapNotNull null
 
-                if (freshAddress != normalizedCurrent) {
+                if (freshAddress != currentHost) {
                     pubKey to freshAddress
                 } else {
                     null
                 }
             }
             .toMap()
-    }
-
-    private fun normalizeEndpointForComparison(endpoint: String): String {
-        val host = endpoint.substringBeforeLast(":")
-        val port = endpoint.substringAfterLast(":")
-
-        return if (host.contains(":")) {
-            // Looks like IPv6
-            if (host.startsWith("[")) endpoint else "[$host]:$port"
-        } else {
-            endpoint
-        }
     }
 
     private fun CoroutineScope.startIpv6Job(
@@ -650,7 +627,6 @@ class TunnelBackend(
     ) {
         val mutex = peerUpdateMutexes.getOrPut(tunnelId) { Mutex() }
         mutex.withLock {
-            var forceDnsMode: DnsBoostrapMode? = null
             when (reason) {
                 PeerUpdateReason.IPV4_FALLBACK -> {
                     updateActiveTunnel(tunnelId) { it.copy(isFallenBackToIpv4ForNetwork = true) }
@@ -660,18 +636,13 @@ class TunnelBackend(
                     updateActiveTunnel(tunnelId) { it.copy(isFallenBackToIpv4ForNetwork = false) }
                     if (reason == PeerUpdateReason.NETWORK_CHANGE_RESET) return
                 }
-                PeerUpdateReason.DDNS_CHECK -> {
-                    forceDnsMode =
-                        DnsBoostrapMode.Custom(
-                            DnsBoostrapConfig.DoH(upstream = DnsBoostrapConfig.DEFAULT_DOH_UPSTREAM)
-                        )
-                }
+                PeerUpdateReason.DDNS_CHECK -> Unit
             }
 
             val updatedActiveTunnel = _status.value.activeTunnels[tunnelId] ?: return
             val tunnel = updatedActiveTunnel.tunnel ?: return
 
-            val results = endpointResolver.resolvePeers(mode, forceDnsMode)
+            var results = endpointResolver.resolvePeers(mode)
             if (results.isEmpty()) return
 
             val networkHasIpv6 = stableNetworkEngine.stableState.value?.state?.hasIpv6 == true
@@ -688,7 +659,23 @@ class TunnelBackend(
                     return
                 } ?: return
 
-            val mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
+            var mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
+
+            if (
+                reason == PeerUpdateReason.DDNS_CHECK && (results.isEmpty() || mismatches.isEmpty())
+            ) {
+                Timber.w(
+                    "DNS resolution returned no new data, could be stale of cached. Switching to default DoH to avoid cache"
+                )
+
+                val avoidCacheMode =
+                    DnsBoostrapMode.Custom(
+                        DnsBoostrapConfig.DoH(DnsBoostrapConfig.DEFAULT_DOH_UPSTREAM)
+                    )
+
+                results = endpointResolver.resolvePeers(mode, avoidCacheMode)
+                mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
+            }
 
             Timber.d("Reconciliation complete for $reason. Mismatches found: ${mismatches.size}")
 
