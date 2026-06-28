@@ -8,7 +8,6 @@ import com.zaneschepke.tunnel.VpnBackend
 import com.zaneschepke.tunnel.backend.dns.EndpointResolver
 import com.zaneschepke.tunnel.event.TunnelEvent
 import com.zaneschepke.tunnel.model.BackendMode
-import com.zaneschepke.tunnel.model.DnsBoostrapConfig
 import com.zaneschepke.tunnel.model.DnsBoostrapMode
 import com.zaneschepke.tunnel.model.DnsBootstrapResult
 import com.zaneschepke.tunnel.model.Host
@@ -642,7 +641,7 @@ class TunnelBackend(
             val updatedActiveTunnel = _status.value.activeTunnels[tunnelId] ?: return
             val tunnel = updatedActiveTunnel.tunnel ?: return
 
-            var results = endpointResolver.resolvePeers(mode)
+            val results = endpointResolver.resolvePeers(mode)
             if (results.isEmpty()) return
 
             val networkHasIpv6 = stableNetworkEngine.stableState.value?.state?.hasIpv6 == true
@@ -659,23 +658,7 @@ class TunnelBackend(
                     return
                 } ?: return
 
-            var mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
-
-            if (
-                reason == PeerUpdateReason.DDNS_CHECK && (results.isEmpty() || mismatches.isEmpty())
-            ) {
-                Timber.w(
-                    "DNS resolution returned no new data, could be stale of cached. Switching to default DoH to avoid cache"
-                )
-
-                val avoidCacheMode =
-                    DnsBoostrapMode.Custom(
-                        DnsBoostrapConfig.DoH(DnsBoostrapConfig.DEFAULT_DOH_UPSTREAM)
-                    )
-
-                results = endpointResolver.resolvePeers(mode, avoidCacheMode)
-                mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
-            }
+            val mismatches = findEndpointMismatches(results, activeConfig, preferIpv6)
 
             Timber.d("Reconciliation complete for $reason. Mismatches found: ${mismatches.size}")
 

@@ -66,6 +66,7 @@ dependencies {
 
     api(libs.amneziawg.parser)
     implementation(libs.libsu)
+    implementation(libs.ipaddress)
 
     implementation(libs.timber)
 

@@ -1,30 +1,36 @@
-package com.zaneschepke.tunnel
+package com.zaneschepke.tunnel.backend.dns
 
-import com.zaneschepke.tunnel.model.DnsBoostrapConfig
 import com.zaneschepke.tunnel.model.DnsBootstrapResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal object DnsConfigManager {
+internal object NativeDnsResolver {
 
     private external fun resolveBootstrap(
         host: String,
         protocol: String,
-        upstream: String,
-        underlyingDnsServers: String,
+        resolvedUpstream: String,
+        originalUpstream: String,
         bypass: Int,
     ): String
 
     suspend fun resolveHostBootstrap(
         host: String,
         protocol: String,
-        upstream: String,
-        underlyingDnsServers: String = DnsBoostrapConfig.DEFAULT_UNDERLYING_SERVERS,
+        resolvedUpstream: String,
+        originalUpstream: String,
         bypass: Boolean,
     ): DnsBootstrapResult =
         withContext(Dispatchers.IO) {
             val bypassOption = if (bypass) 1 else 0
-            val raw = resolveBootstrap(host, protocol, upstream, underlyingDnsServers, bypassOption)
+            val raw =
+                resolveBootstrap(
+                    host = host,
+                    protocol = protocol,
+                    resolvedUpstream = resolvedUpstream,
+                    originalUpstream = originalUpstream,
+                    bypass = bypassOption,
+                )
 
             if (raw.startsWith("ERR|")) {
                 throw RuntimeException(raw.removePrefix("ERR|"))
