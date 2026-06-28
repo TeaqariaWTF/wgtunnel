@@ -212,7 +212,6 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         setMetered(config.metered)
                     }
-                    addAddress(IPV6_ULA, 128)
                     addRoute(IPV6_DEFAULT_ROUTE, 0)
                     setMtu(DEFAULT_MTU)
                     addDnsServer(DEFAULT_DNS_SERVER)
@@ -362,7 +361,6 @@ class VpnService : android.net.VpnService(), KillSwitch, SocketProtector {
         private const val LOCKDOWN_SESSION_NAME = "Lockdown"
         private const val LOCALHOST = "127.0.0.1"
         private const val IPV4_INTERFACE_ADDRESS = "10.0.0.1"
-        private const val IPV6_ULA = "fd00::1"
         private const val IPV6_INTERFACE_ADDRESS = "2001:db8::1"
         const val LOCKDOWN_USERNAME = "local"
         private const val IPV4_DEFAULT_ROUTE = "0.0.0.0"
