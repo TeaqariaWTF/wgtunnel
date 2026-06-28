@@ -440,7 +440,7 @@ class TunnelBackend(
 
                 while (isActive) {
                     val stable = stableNetworkEngine.stableState.value
-                    if (stable?.state?.hasInternet() == true) {
+                    if (stable?.state?.hasActiveNetwork() == true) {
                         val tunnel = _status.value.activeTunnels[tunnelId] ?: continue
                         tunnel.mode?.let { mode ->
                             reconcilePeers(tunnelId, handle, mode, PeerUpdateReason.DDNS_CHECK)

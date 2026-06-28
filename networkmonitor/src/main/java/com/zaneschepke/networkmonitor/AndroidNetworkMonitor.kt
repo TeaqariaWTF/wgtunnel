@@ -162,6 +162,7 @@ class AndroidNetworkMonitor(
                     if (intent.action == Intent.ACTION_AIRPLANE_MODE_CHANGED) {
                         val isOn = intent.getBooleanExtra("state", false)
                         Timber.d("Airplane mode changed: $isOn")
+                        if (isOn) activeCellularNetworks.value = emptyMap()
                         airplaneModeState.update { isOn }
                     }
                 }
@@ -530,26 +531,13 @@ class AndroidNetworkMonitor(
             .also { Timber.d("Current SSID via ${method.name}: $it") }
     }
 
-    private fun hasGoodNetworkCaps(caps: NetworkCapabilities?): Boolean {
+    private fun hasValidatedInternet(caps: NetworkCapabilities?): Boolean {
         if (caps == null) return false
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
             caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
             (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
                 caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED))
     }
-
-    private fun hasGoodCellularNetwork(): Boolean =
-        activeCellularNetworks.value.values.any { caps ->
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) && hasGoodNetworkCaps(caps)
-        }
-
-    private fun getGoodCellularNetwork(): Network? =
-        activeCellularNetworks.value.entries
-            .firstOrNull { (_, caps) ->
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) &&
-                    hasGoodNetworkCaps(caps)
-            }
-            ?.key
 
     // default network events don't contain detailed capability information of underlying networks,
     // so we need to track separately
@@ -569,6 +557,25 @@ class AndroidNetworkMonitor(
             ethernetEvent ->
             NetworkData(defaultEvent, wifiEvent, cellularEvent, ethernetEvent)
         }
+
+    // For multi-sim selection, prefers foreground, then validated internet, then not suspended
+    private fun pickBestCellularNetwork(): Network? {
+        if (activeCellularNetworks.value.isEmpty()) return null
+
+        return activeCellularNetworks.value.entries
+            .maxByOrNull { (_, caps) ->
+                var score = 0
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND)) score += 100
+                if (hasValidatedInternet(caps)) score += 50
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED))
+                    score += 20
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED))
+                    score += 10
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) score += 5
+                score
+            }
+            ?.key
+    }
 
     @OptIn(FlowPreview::class)
     override val connectivityStateFlow: SharedFlow<ConnectivityState> =
@@ -605,6 +612,7 @@ class AndroidNetworkMonitor(
                         activeNetwork = ActiveNetwork.Disconnected(),
                         locationPermissionsGranted = permissions.locationPermissionGranted,
                         locationServicesEnabled = permissions.locationServicesEnabled,
+                        airplaneModeOn = isAirplaneOn,
                         vpnState = VpnState.Inactive,
                     )
                 }
@@ -626,23 +634,15 @@ class AndroidNetworkMonitor(
                 val physicalNetwork: ActiveNetwork =
                     when {
                         networkData.ethernetEvent is TransportEvent.CapabilitiesChanged &&
-                            networkData.ethernetEvent.networkCapabilities?.let { caps ->
-                                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) &&
-                                    caps.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_INTERNET
-                                    ) &&
-                                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                            } == true -> {
+                            networkData.ethernetEvent.networkCapabilities?.hasTransport(
+                                NetworkCapabilities.TRANSPORT_ETHERNET
+                            ) == true -> {
                             ActiveNetwork.Ethernet(networkData.ethernetEvent.network)
                         }
 
                         networkData.wifiNetworkEvent is TransportEvent.CapabilitiesChanged &&
                             networkData.wifiNetworkEvent.networkCapabilities?.let { caps ->
-                                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) &&
-                                    caps.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_INTERNET
-                                    ) &&
-                                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                             } == true -> {
 
                             val wifiEvent = networkData.wifiNetworkEvent
@@ -689,18 +689,12 @@ class AndroidNetworkMonitor(
                             )
                         }
                         else -> {
-                            val defaultIsGoodCellular =
-                                !isAirplaneOn &&
-                                    defaultCaps?.hasTransport(
-                                        NetworkCapabilities.TRANSPORT_CELLULAR
-                                    ) == true &&
-                                    hasGoodNetworkCaps(defaultCaps)
+                            val cellularNetwork =
+                                pickBestCellularNetwork()
+                                    ?: activeCellularNetworks.value.keys.firstOrNull()
 
-                            val cellularNet =
-                                getGoodCellularNetwork()
-                                    ?: if (defaultIsGoodCellular) defaultNetwork else null
-                            if (cellularNet != null) {
-                                ActiveNetwork.Cellular(cellularNet)
+                            if (cellularNetwork != null) {
+                                ActiveNetwork.Cellular(cellularNetwork)
                             } else {
                                 ActiveNetwork.Disconnected()
                             }
@@ -730,14 +724,31 @@ class AndroidNetworkMonitor(
                         privateDnsHostname = privateDnsSettings.hostname,
                     )
 
+                val physicalCaps: NetworkCapabilities? =
+                    when (physicalNetwork) {
+                        is ActiveNetwork.Wifi ->
+                            (networkData.wifiNetworkEvent as? TransportEvent.CapabilitiesChanged)
+                                ?.networkCapabilities
+                        is ActiveNetwork.Cellular ->
+                            activeCellularNetworks.value[physicalNetwork.network]
+                        is ActiveNetwork.Ethernet ->
+                            (networkData.ethernetEvent as? TransportEvent.CapabilitiesChanged)
+                                ?.networkCapabilities
+                        else -> null
+                    }
+
+                val hasValidatedInternet = hasValidatedInternet(physicalCaps)
+
                 ConnectivityState(
                     activeNetwork = physicalNetwork,
                     locationPermissionsGranted = permissions.locationPermissionGranted,
                     locationServicesEnabled = permissions.locationServicesEnabled,
                     vpnState = vpnState,
+                    airplaneModeOn = isAirplaneOn,
                     effectiveDnsInfo = effectiveDns,
                     underlyingDnsInfo = underlyingDns,
                     hasIpv6 = hasIpv6Support(underlyingNetwork, physicalNetwork),
+                    hasValidatedInternet = hasValidatedInternet,
                 )
             }
             .distinctUntilChanged()

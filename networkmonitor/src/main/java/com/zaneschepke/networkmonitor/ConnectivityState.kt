@@ -11,8 +11,11 @@ data class ConnectivityState(
     val effectiveDnsInfo: DnsInfo = DnsInfo(),
     val underlyingDnsInfo: DnsInfo = DnsInfo(),
     val hasIpv6: Boolean = false,
+    val airplaneModeOn: Boolean = false,
+    val hasValidatedInternet: Boolean = false,
 ) {
-    fun hasInternet(): Boolean = activeNetwork !is ActiveNetwork.Disconnected
+
+    fun hasActiveNetwork(): Boolean = activeNetwork !is ActiveNetwork.Disconnected
 
     override fun toString(): String {
         val networkInfo =
