@@ -192,11 +192,11 @@ class AutoTunnelService : LifecycleService() {
                 reconciliationMutex.withLock {
                     val currentNetworkState = networkEngine.stableState.value?.state?.toDomain()
 
-                    val stillNoInternet = currentNetworkState?.hasInternet() == false
+                    val stillNoUsableNetwork = currentNetworkState?.hasUsableNetwork == false
                     val stopOnNoInternetEnabled =
                         autoTunnelRepository.flow.firstOrNull()?.isStopOnNoInternetEnabled == true
 
-                    if (stillNoInternet && stopOnNoInternetEnabled) {
+                    if (stillNoUsableNetwork && stopOnNoInternetEnabled) {
                         val currentActiveIds =
                             tunnelCoordinator.backendStatus.value.activeTunnels.keys
 

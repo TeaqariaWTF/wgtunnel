@@ -1,10 +1,13 @@
 package com.zaneschepke.networkmonitor
 
 import android.net.Network
+import android.net.NetworkCapabilities
+import android.os.Build
 import com.zaneschepke.networkmonitor.util.WifiSecurityType
 
 data class ConnectivityState(
     val activeNetwork: ActiveNetwork,
+    val cellularNetworks: Map<Network, NetworkCapabilities>,
     val locationPermissionsGranted: Boolean,
     val locationServicesEnabled: Boolean,
     val vpnState: VpnState,
@@ -12,8 +15,55 @@ data class ConnectivityState(
     val underlyingDnsInfo: DnsInfo = DnsInfo(),
     val hasIpv6: Boolean = false,
     val airplaneModeOn: Boolean = false,
-    val hasValidatedInternet: Boolean = false,
 ) {
+
+    fun hasUsableNetwork(): Boolean {
+        if (!hasActiveNetwork()) return false
+
+        return when (activeNetwork) {
+            is ActiveNetwork.Cellular -> hasAnyUsableCellular()
+            is ActiveNetwork.Wifi,
+            is ActiveNetwork.Ethernet -> hasInternetCapability()
+            is ActiveNetwork.Disconnected -> false
+        }
+    }
+
+    fun requiresCaptivePortalLogin(): Boolean {
+        return activeNetwork is ActiveNetwork.Wifi &&
+            activeNetwork.capabilities?.hasCapability(
+                NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL
+            ) == true
+    }
+
+    fun hasAnyUsableCellular(): Boolean {
+        if (cellularNetworks.isEmpty()) return false
+
+        if (cellularNetworks.values.any { hasValidatedInternet(it) }) return true
+
+        return cellularNetworks.values.any {
+            it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && hasNotSuspended(it)
+        }
+    }
+
+    private fun hasValidatedInternet(caps: NetworkCapabilities?): Boolean {
+        if (caps == null) return false
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+            hasNotSuspended(caps)
+    }
+
+    private fun hasInternetCapability(
+        caps: NetworkCapabilities? = activeNetwork.capabilities
+    ): Boolean {
+        if (caps == null) return false
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun hasNotSuspended(caps: NetworkCapabilities?): Boolean {
+        if (caps == null) return false
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED)
+    }
 
     fun hasActiveNetwork(): Boolean = activeNetwork !is ActiveNetwork.Disconnected
 
@@ -39,6 +89,7 @@ data class Permissions(val locationServicesEnabled: Boolean, val locationPermiss
 
 sealed class ActiveNetwork {
     abstract val network: Network?
+    abstract val capabilities: NetworkCapabilities?
 
     fun key(): String {
         return when (this) {
@@ -49,18 +100,28 @@ sealed class ActiveNetwork {
         }
     }
 
-    data class Disconnected(override val network: Network? = null) : ActiveNetwork()
+    data class Disconnected(
+        override val network: Network? = null,
+        override val capabilities: NetworkCapabilities? = null,
+    ) : ActiveNetwork()
 
     data class Wifi(
         val ssid: String,
         val securityType: WifiSecurityType?,
         val networkId: String,
         override val network: Network?,
+        override val capabilities: NetworkCapabilities? = null,
     ) : ActiveNetwork()
 
-    data class Cellular(override val network: Network?) : ActiveNetwork()
+    data class Cellular(
+        override val network: Network?,
+        override val capabilities: NetworkCapabilities? = null,
+    ) : ActiveNetwork()
 
-    data class Ethernet(override val network: Network?) : ActiveNetwork()
+    data class Ethernet(
+        override val network: Network?,
+        override val capabilities: NetworkCapabilities? = null,
+    ) : ActiveNetwork()
 }
 
 sealed interface VpnState {

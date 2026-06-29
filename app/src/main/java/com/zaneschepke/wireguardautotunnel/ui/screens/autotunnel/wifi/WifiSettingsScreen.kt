@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Filter1
 import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PublicOff
 import androidx.compose.material.icons.outlined.WifiFind
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -188,6 +189,21 @@ fun WifiSettingsScreen(viewModel: AutoTunnelViewModel = koinViewModel()) {
                             if (uiState.autoTunnelSettings.isWildcardsEnabled) WildcardsLabel()
                         },
                         modifier = Modifier.padding(top = 4.dp),
+                    )
+                },
+            )
+            SurfaceRow(
+                leading = { Icon(Icons.Outlined.PublicOff, contentDescription = null) },
+                title = stringResource(R.string.stop_while_captive_portal),
+                onClick = {
+                    viewModel.setDisabledOnCaptivePortal(
+                        !uiState.autoTunnelSettings.disableTunnelOnCaptivePortal
+                    )
+                },
+                trailing = {
+                    ThemedSwitch(
+                        checked = uiState.autoTunnelSettings.disableTunnelOnCaptivePortal,
+                        onClick = { viewModel.setDisabledOnCaptivePortal(it) },
                     )
                 },
             )

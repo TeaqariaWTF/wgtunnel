@@ -145,6 +145,10 @@ class AutoTunnelViewModel(
         )
     }
 
+    fun setDisabledOnCaptivePortal(enabled: Boolean) = intent {
+        autoTunnelRepository.updateDisableOnCaptivePortal(enabled)
+    }
+
     fun removeTunnelNetwork(tunnel: TunnelConfig, ssid: String) = intent {
         tunnelsRepository.save(
             tunnel.copy(

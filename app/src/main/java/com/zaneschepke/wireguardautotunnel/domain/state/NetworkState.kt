@@ -11,16 +11,20 @@ sealed class ActiveNetwork {
 
     data object Cellular : ActiveNetwork()
 
-    data class Wifi(val ssid: String, val isSecure: Boolean?) : ActiveNetwork()
+    data class Wifi(
+        val ssid: String,
+        val isSecure: Boolean?,
+        val requiresCaptivePortalLogin: Boolean,
+    ) : ActiveNetwork()
 }
 
 data class NetworkState(
     val activeNetwork: ActiveNetwork = ActiveNetwork.Disconnected,
     val locationServicesEnabled: Boolean = false,
     val locationPermissionGranted: Boolean = false,
-) {
-    fun hasInternet(): Boolean = activeNetwork !is ActiveNetwork.Disconnected
-}
+    // Has a network that can actually transfer data (not suspended)
+    val hasUsableNetwork: Boolean = false,
+)
 
 fun ConnectivityState.toDomain(): NetworkState {
     val domainNetwork: ActiveNetwork =
@@ -33,7 +37,11 @@ fun ConnectivityState.toDomain(): NetworkState {
                         null -> null
                         else -> true
                     }
-                ActiveNetwork.Wifi(ssid = network.ssid, isSecure = isSecure)
+                ActiveNetwork.Wifi(
+                    ssid = network.ssid,
+                    isSecure = isSecure,
+                    requiresCaptivePortalLogin(),
+                )
             }
             is MonitorActiveNetwork.Cellular -> ActiveNetwork.Cellular
             is MonitorActiveNetwork.Ethernet -> ActiveNetwork.Ethernet
@@ -44,5 +52,6 @@ fun ConnectivityState.toDomain(): NetworkState {
         activeNetwork = domainNetwork,
         locationPermissionGranted = this.locationPermissionsGranted,
         locationServicesEnabled = this.locationServicesEnabled,
+        hasUsableNetwork = hasUsableNetwork(),
     )
 }

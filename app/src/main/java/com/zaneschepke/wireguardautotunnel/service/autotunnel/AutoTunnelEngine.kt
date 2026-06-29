@@ -28,7 +28,19 @@ class AutoTunnelEngine {
 
         val activeTunnelIds = backend.activeTunnels.keys.toSet()
 
-        if (!network.hasInternet()) {
+        val isOnCaptivePortalWifi =
+            network.activeNetwork is ActiveNetwork.Wifi &&
+                network.activeNetwork.requiresCaptivePortalLogin
+
+        if (isOnCaptivePortalWifi && settings.disableTunnelOnCaptivePortal) {
+            return if (activeTunnelIds.isNotEmpty()) {
+                Decision.Sync(start = emptySet(), stop = activeTunnelIds)
+            } else {
+                Decision.None
+            }
+        }
+
+        if (!network.hasUsableNetwork) {
             return if (settings.isStopOnNoInternetEnabled) {
                 Decision.StopDueToNoInternet
             } else {

@@ -552,4 +552,5 @@
     <string name="local_network_permission_nearby_devices">Note: Android labels this permission as “nearby devices”.</string>
 
     <string name="local_network_permission_denied">Local network access denied. Some features may not work properly</string>
+    <string name="stop_while_captive_portal">Stop tunnel while captive portal is present</string>
 </resources>
