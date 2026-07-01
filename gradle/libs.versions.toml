@@ -49,6 +49,7 @@ relinker = "1.4.5"
 libsu = "6.0.0"
 jetbrainsKotlinJvm = "2.4.0"
 sonner = "0.3.9"
+aboutlibraries = "15.0.3"
 
 [bundles]
 # Core AndroidX foundations
@@ -201,6 +202,8 @@ shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizu
 relinker = { module = "com.getkeepsafe.relinker:relinker", version.ref = "relinker" }
 libsu = { module = "com.github.topjohnwu.libsu:core", version.ref = "libsu" }
 
+aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -211,3 +214,4 @@ grgit = { id = "org.ajoberstar.grgit.service", version.ref = "gradlePlugins-grgi
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }

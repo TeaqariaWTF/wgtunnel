@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.grgit)
     alias(libs.plugins.licensee)
+    alias(libs.plugins.aboutlibraries)
 }
 
 ksp {
@@ -17,9 +18,15 @@ ksp {
 licensee {
     allowedLicenses().forEach { allow(it) }
     allowedLicenseUrls().forEach { allowUrl(it) }
-    // foss, but missing licenses
-    ignoreDependencies("com.github.T8RIN.QuickieExtended")
-    ignoreDependencies("com.github.topjohnwu.libsu")
+    allowDependency("com.github.T8RIN.QuickieExtended", "quickie-foss", "1.18.1") {
+        because("FOSS library, but JitPack doesn't publish license metadata")
+        allow("Apache-2.0")
+    }
+
+    allowDependency("com.github.topjohnwu.libsu", "core", "6.0.0") {
+        because("FOSS library, but JitPack doesn't publish license metadata")
+        allow("Apache-2.0")
+    }
 }
 
 configure<ApplicationExtension> {
@@ -231,6 +238,7 @@ dependencies {
     implementation(libs.bundles.ui.utilities)
     implementation(libs.lottie.compose)
     implementation(libs.sonner)
+    implementation(libs.aboutlibraries.compose)
 
     // Misc utilities
     implementation(libs.bundles.misc.utilities)

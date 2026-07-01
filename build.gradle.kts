@@ -9,6 +9,7 @@ plugins {
 	alias(libs.plugins.ktfmt)
 	alias(libs.plugins.licensee) apply false
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
+	alias(libs.plugins.aboutlibraries) apply false
 }
 
 subprojects {
